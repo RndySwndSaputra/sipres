@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Password;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use App\Notifications\SystemNotification; // Pastikan import ini ada
+use App\Notifications\SystemNotification; 
 
 class AuthController extends Controller
 {
@@ -72,7 +72,7 @@ class AuthController extends Controller
 
                 $user->save();
                 
-                // (Opsional) Kirim notifikasi keamanan saat reset password berhasil
+                // Kirim notifikasi keamanan saat reset password berhasil
                 try {
                     $user->notify(new SystemNotification(
                         'keamanan',
@@ -114,7 +114,7 @@ class AuthController extends Controller
                 }
 
                 $cookieName = method_exists(Auth::guard(), 'getRecallerName') ? Auth::guard()->getRecallerName() : 'remember_web';
-                // Perbaikan typo: sgetAuthPassword -> getAuthPassword
+                
                 $recallerValue = $user->getAuthIdentifier().'|'.$user->getRememberToken().'|'.$user->getAuthPassword();
                 $minutes = 60 * 24 * 3; 
 
@@ -131,24 +131,6 @@ class AuthController extends Controller
                         config('session.same_site', 'lax')
                     )
                 );
-            }
-
-            // --- NOTIFIKASI KEAMANAN: LOGIN BARU ---
-            // Memberi tahu user bahwa ada login baru
-            try {
-                $time = now()->format('H:i');
-                // Link diarahkan ke Pengaturan -> Tab Keamanan (History login biasanya ada di sana jika fitur dibuat nanti)
-                // Atau ke Dashboard
-                $link = route('dashboard');
-
-                $user->notify(new SystemNotification(
-                    'keamanan',
-                    'info',
-                    "Login baru terdeteksi pada jam $time WIB.",
-                    $link
-                ));
-            } catch (\Exception $e) {
-                // Abaikan error notifikasi agar login tetap jalan
             }
 
             return redirect()->intended(route('dashboard'));
