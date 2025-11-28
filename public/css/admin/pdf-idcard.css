@@ -1,0 +1,155 @@
+/* File: public/css/admin/pdf-idcard.css */
+
+/* Reset dasar */
+@page {
+    margin: 10mm;
+}
+body {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+}
+
+.container {
+    width: 100%;
+    text-align: center;
+}
+
+/* --- Desain Fisik Kartu --- */
+.id-card {
+    width: 54mm;
+    height: 85.6mm;
+    border: 1px solid #e2e8f0;
+    
+    /* PENTING: Gunakan inline-block agar bisa berjejer rapi tanpa float/flex */
+    display: inline-block;
+    vertical-align: top;
+    margin: 5mm; 
+    
+    position: relative;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    page-break-inside: avoid;
+}
+
+/* Header */
+.card-header {
+    background-color: #1e3a8a;
+    color: #ffffff;
+    padding: 10px 2px;
+    text-align: center;
+    height: 30px;
+}
+.acara-label {
+    font-size: 7px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin-bottom: 2px;
+}
+.acara-title {
+    font-size: 9px;
+    font-weight: bold;
+    line-height: 1.1;
+    text-transform: uppercase;
+    max-height: 22px;
+    overflow: hidden;
+}
+
+/* Body */
+.card-body {
+    padding: 5px;
+    text-align: center;
+}
+
+.peserta-name {
+    font-size: 11px;
+    font-weight: bold;
+    color: #1e293b;
+    margin-top: 5px;
+    margin-bottom: 2px;
+    text-transform: capitalize;
+    line-height: 1.2;
+    height: 28px;
+    overflow: hidden;
+}
+
+.peserta-nip {
+    font-size: 9px;
+    font-family: 'Courier New', monospace;
+    color: #64748b;
+    background: #f1f5f9;
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+/* --- PERBAIKAN PENTING: HAPUS FLEXBOX DI SINI --- */
+.qr-container {
+    margin: 2px auto;
+    padding: 5px;
+    border: 2px dashed #cbd5e1;
+    border-radius: 8px;
+    width: 32mm;
+    height: 32mm;
+    background: #fff;
+    
+    /* Pengganti Flexbox: */
+    text-align: center; 
+    /* line-height trick untuk vertikal center (opsional) */
+    line-height: 30mm; 
+}
+
+.qr-img {
+    width: 30mm;
+    height: 30mm;
+    /* Agar gambar dianggap inline dan terkena text-align center */
+    display: inline-block; 
+    vertical-align: middle;
+}
+
+.scan-hint {
+    font-size: 7px;
+    color: #94a3b8;
+    margin-top: 2px;
+    font-style: italic;
+    line-height: normal; /* Reset line-height container */
+}
+
+/* Footer */
+.card-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 25px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+    line-height: 25px;
+}
+.skpd-text {
+    font-size: 8px;
+    font-weight: bold;
+    color: #334155;
+    padding: 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Hiasan */
+.corner-accent {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background-color: #3b82f6;
+    opacity: 0.1;
+    border-radius: 50%;
+    z-index: 0;
+}
+.top-right { top: -10px; right: -10px; }
+.bottom-left { bottom: 20px; left: -15px; }

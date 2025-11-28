@@ -1,0 +1,107 @@
+* { box-sizing: border-box }
+html, body { height: 100% }
+
+body {
+  font-family: 'Times New Roman', Times, serif;
+  color: #111827;
+  background: #fff;
+  line-height: 1.5;
+}
+
+@page { size: A4; margin: 20mm; }
+
+.doc {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+/* HEADER */
+.doc-header { text-align: center; margin-bottom: 12px; border-bottom: 2.5px solid #000; padding-bottom: 8px }
+.doc-header h1 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+/* META TABLE */
+.doc-meta { margin: 14px 0 20px }
+.meta-table { width: 100%; border-collapse: collapse }
+.meta-table td { padding: 4px 8px; vertical-align: middle }
+.meta-label { width: 180px; color: #111827; font-weight: 600 }
+.meta-sep { width: 16px; text-align: center }
+
+.meta-line { position: static; height: auto }
+
+.meta-line::after { content: none; border-bottom: none }
+
+.meta-value { position: static; left: auto; bottom: auto; background: transparent; padding: 0 }
+
+/* TABLE */
+.doc-table { margin-top: 8px }
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.data-table thead th {
+  background: #e5e7eb;
+  font-weight: 600;
+  border: 1.2px solid #000;
+  padding: 8px;
+  text-align: center;
+}
+
+.data-table tbody td {
+  border: 1px solid #000;
+  padding: 8px;
+  word-break: break-word;
+  vertical-align: top;
+}
+
+.text-center { text-align: center }
+.text-danger { color: #dc2626 }
+.cell-name { font-weight: 600 }
+.cell-nip { font-size: 12px }
+
+/* SIGNATURE SECTION */
+.doc-sign { margin-top: 60px; font-size: 15px }
+.doc-sign.right { display: flex; justify-content: flex-end }
+.sign-box { width: 280px }
+
+.sign-line {
+  display: flex;
+  align-items: baseline;
+  margin: 6px 0;
+  white-space: nowrap;
+}
+
+.sign-line span:first-child {
+  min-width: 180px;
+}
+.doc-sign.right .sign-line span:first-child { min-width: 0; margin-right: 0 }
+
+.dot-fill {
+  flex: 1;
+  border-bottom: 1px dotted #000;
+  margin-left: 2px;
+  height: 14px;
+}
+.doc-sign.right .dot-fill { width: 8cm; flex: unset }
+
+/* garis nama — pendek */
+.sign-line.short .dot-fill {
+  width: 50%;
+  flex: unset;
+}
+.solid-fill { width: 8cm; border-bottom: 1px solid #000; height: 14px; flex: unset }
+
+.sign-space { height: 50px }
+
+@media print {
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact }
+  .doc-header h1 { font-size: 18px }
+}

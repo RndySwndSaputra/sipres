@@ -1,0 +1,22 @@
+@import 'tailwindcss';
+
+/* Pastikan Tailwind mendeteksi file blade Anda */
+@source '../views/**/*.blade.php';
+@source '../js/**/*.js';
+
+@theme {
+    /* Font */
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+
+    /* Warna Custom SIPRES */
+    --color-sipres-dark: #1f2937;
+    --color-sipres-green: #2d8a6e; 
+    --color-sipres-lime: #a3e635;
+    --color-sipres-gray: #e5e7eb;
+    --color-sipres-bg: #ffffff;
+}
+
+/* Custom Utility */
+.card-shadow {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
