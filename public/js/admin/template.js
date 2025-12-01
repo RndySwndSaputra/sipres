@@ -1,5 +1,5 @@
 // =================================================================
-// BAGIAN 1: SIDEBAR, NAVBAR, LOGOUT (LOGIKA ASLI - TIDAK DIUBAH)
+// BAGIAN 1: SIDEBAR, NAVBAR, LOGOUT (PERBAIKAN LOGIKA TABLET/IPAD)
 // =================================================================
 (() => {
   const layout = document.getElementById('layoutRoot');
@@ -14,48 +14,68 @@
   const COLLAPSED_CLASS = 'sidebar-collapsed';
   const OPEN_CLASS = 'sidebar-open';
 
-  const isMobile = () => window.matchMedia('(max-width: 640px)').matches;
+  // PERBAIKAN: Ubah batas mobile menjadi 1024px (Mencakup iPad/Tablet Portrait)
+  // Ini agar di iPad, menu tidak menggeser konten (grid), tapi muncul menutupi layar (overlay)
+  const isMobile = () => window.matchMedia('(max-width: 1024px)').matches;
 
   const applyInitialState = () => {
     if (isMobile()) {
+      // Mode Mobile/Tablet: Reset semua class desktop
       layout.classList.remove(COLLAPSED_CLASS);
       layout.classList.remove(OPEN_CLASS);
       document.body.classList.remove('no-scroll');
       toggle.setAttribute('aria-expanded', 'false');
     } else {
+      // Mode Desktop (> 1024px)
       layout.classList.remove(OPEN_CLASS);
       document.body.classList.remove('no-scroll');
-      const narrow = window.matchMedia('(max-width: 980px)').matches;
-      if (narrow) {
-        layout.classList.add(COLLAPSED_CLASS);
-        toggle.setAttribute('aria-expanded', 'false');
-      } else {
-        layout.classList.remove(COLLAPSED_CLASS);
-        toggle.setAttribute('aria-expanded', 'true');
-      }
+      
+      // Default Desktop: Terbuka
+      layout.classList.remove(COLLAPSED_CLASS);
+      toggle.setAttribute('aria-expanded', 'true');
     }
   };
 
+  // Jalankan saat load
   applyInitialState();
+  
+  // Event Listener Resize dengan Debounce ringan
+  let resizeTimer;
   window.addEventListener('resize', () => {
-    applyInitialState();
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        // Cek jika mode berubah drastis (misal rotasi layar tablet)
+        const currentlyMobile = isMobile();
+        // Hanya reset jika layout state tidak sesuai device
+        if (currentlyMobile && layout.classList.contains(COLLAPSED_CLASS)) {
+            applyInitialState();
+        } else if (!currentlyMobile && layout.classList.contains(OPEN_CLASS)) {
+            applyInitialState();
+        }
+    }, 100);
   });
 
-  toggle.addEventListener('click', () => {
+  toggle.addEventListener('click', (e) => {
+    e.stopPropagation(); // Mencegah event bubbling
+    
     if (isMobile()) {
+      // LOGIKA MOBILE & TABLET (Overlay)
       const isOpen = layout.classList.toggle(OPEN_CLASS);
       toggle.setAttribute('aria-expanded', String(isOpen));
+      
       if (isOpen) {
-        document.body.classList.add('no-scroll');
+        document.body.classList.add('no-scroll'); // Kunci scroll background
       } else {
         document.body.classList.remove('no-scroll');
       }
     } else {
+      // LOGIKA DESKTOP (Grid Collapse)
       const isCollapsed = layout.classList.toggle(COLLAPSED_CLASS);
       toggle.setAttribute('aria-expanded', String(!isCollapsed));
     }
   });
 
+  // Klik Backdrop untuk menutup sidebar (Mobile/Tablet)
   if (backdrop) {
     backdrop.addEventListener('click', () => {
       if (!isMobile()) return;
@@ -65,6 +85,7 @@
     });
   }
 
+  // Tutup sidebar dengan tombol ESC
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && isMobile() && layout.classList.contains(OPEN_CLASS)) {
       layout.classList.remove(OPEN_CLASS);
@@ -78,27 +99,25 @@
     const links = Array.from(sidebar.querySelectorAll('a.nav__item[href]'));
     if (!links.length) return;
     const current = window.location.pathname.replace(/\/+$/, '');
-    let matched = false;
     links.forEach((a) => {
       a.classList.remove('is-active');
       try {
         const path = new URL(a.getAttribute('href'), window.location.origin).pathname.replace(/\/+$/, '');
-        if (path && path === current) {
+        // Cek exact match atau jika link adalah parent dari current path
+        if (path && (path === current || current.startsWith(path + '/'))) { 
           a.classList.add('is-active');
-          matched = true;
         }
       } catch (_) { /* ignore */ }
     });
   };
   setActiveNav();
 
-  // --- KONFIRMASI LOGOUT ---
+  // Konfirmasi Logout
   const logoutForm = document.getElementById('logoutForm');
   if (logoutForm) {
     logoutForm.addEventListener('submit', function (e) {
       e.preventDefault(); 
-      const confirmation = window.confirm('Apakah Anda yakin ingin keluar?');
-      if (confirmation) {
+      if (window.confirm('Apakah Anda yakin ingin keluar?')) {
         this.submit();
       }
     });
@@ -106,7 +125,7 @@
 })();
 
 // =================================================================
-// BAGIAN 2: NOTIFIKASI REAL-TIME (DIPERBAIKI & HANDLE ERROR)
+// BAGIAN 2: NOTIFIKASI REAL-TIME (LOGIKA ASLI DIPERTAHANKAN)
 // =================================================================
 (() => {
   const dropdownToggle = document.getElementById('notificationDropdownToggle');

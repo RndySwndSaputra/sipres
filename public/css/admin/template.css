@@ -653,3 +653,85 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 
 @keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* Responsive Logic Fix for Mobile & Tablet (iPad) */
+/* Kita ubah breakpoint dari 640px ke 1024px agar iPad masuk mode Mobile/Overlay */
+@media (max-width: 1024px) {
+  /* 1. Layout menjadi 1 kolom penuh */
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  /* 2. Sidebar menjadi Off-Canvas (Melayang) */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 280px;
+    height: 100vh; /* Pastikan full height */
+    transform: translateX(-100%); /* Sembunyi ke kiri defaultnya */
+    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 0 1px var(--border), 4px 0 24px rgba(0,0,0,0.1);
+    z-index: 50; /* Harus di atas Navbar */
+  }
+
+  /* State ketika sidebar dibuka */
+  .layout.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+
+  /* 3. Backdrop (Latar gelap) */
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6); /* Lebih gelap sedikit agar fokus */
+    backdrop-filter: blur(2px); /* Efek blur modern */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease;
+    z-index: 40; /* Di bawah sidebar, di atas konten lain */
+    display: block;
+  }
+
+  .layout.sidebar-open .backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* 4. Mencegah scroll pada body saat menu terbuka */
+  body.no-scroll {
+    overflow: hidden;
+  }
+
+  /* 5. Penyesuaian Konten */
+  .navbar__profile .profile__name {
+    display: none; /* Hemat ruang di header */
+  }
+  
+  .content {
+    padding: 16px; /* Padding lebih kecil */
+  }
+
+  /* 6. Penyesuaian Dropdown Notifikasi agar tidak off-screen */
+  .dropdown-menu {
+    position: fixed; /* Ubah ke fixed agar posisinya akurat di layar kecil */
+    top: 70px; /* Jarak dari atas */
+    left: 50%;
+    right: auto;
+    width: 90%; /* Lebar 90% layar */
+    max-width: 400px;
+    transform: translateX(-50%) translateY(-10px);
+    max-height: calc(100vh - 100px);
+  }
+
+  .dropdown.is-open .dropdown-menu {
+    transform: translateX(-50%) translateY(0);
+  }
+  
+  /* Hilangkan efek collapsed "mini sidebar" di tablet, kita pakai full drawer */
+  .layout.sidebar-collapsed .sidebar {
+     padding-left: 16px; 
+     padding-right: 16px;
+  }
+}

@@ -811,7 +811,7 @@
   line-height: 1.5;
 }
 
-/* Responsive Design */
+/* Responsive Design - MOBILE & IPAD FIX */
 @media (max-width: 768px) {
   .acara-toolbar {
     flex-direction: column;
@@ -824,13 +824,21 @@
     max-width: 100%;
   }
 
+  /* PERBAIKAN: Toolbar actions tetap flex (sebelahan) */
   .toolbar-actions {
     width: 100%;
     justify-content: space-between;
+    gap: 10px; /* Tambahkan gap agar tidak dempet */
   }
 
+  /* PERBAIKAN UTAMA: Filter Select jangan 100% width, tapi flex: 1 */
   .filter-select {
-    width: 100%;
+    width: auto;
+    flex: 1; /* Biarkan mengisi ruang kosong di sebelah tombol */
+    min-width: 120px; /* Minimal width agar text tidak terpotong */
+    
+    /* Font size 16px mencegah auto-zoom di iOS/iPad yang bikin tampilan "gede" */
+    font-size: 16px; 
   }
 
   .view-toggle {
@@ -839,7 +847,7 @@
   }
 
   .btn-primary {
-    flex: 1;
+    flex: 1; /* Tombol juga ikut menyesuaikan */
   }
 
   .cards {

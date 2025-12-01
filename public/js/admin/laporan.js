@@ -153,11 +153,14 @@
 
       // Tentukan HTML Lokasi/Link
       let infoLokasiHtml = '';
+      // PERBAIKAN: Mengganti teks 'Link Meeting' dengan variabel url (a.link_meeting)
       if (isOnline) {
         infoLokasiHtml = `
             <div class="info-item" title="Link Meeting">
                 ${iconLink} 
-                <a href="${a.link_meeting || '#'}" target="_blank" style="color:#2563eb; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Link Meeting</a>
+                <a href="${a.link_meeting || '#'}" target="_blank" style="color:#2563eb; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                    ${a.link_meeting || '#'}
+                </a>
             </div>`;
       } else if (isHybrid) {
         infoLokasiHtml = `
@@ -167,7 +170,9 @@
             </div>
             <div class="info-item" title="Link Meeting">
                 ${iconLink} 
-                <a href="${a.link_meeting || '#'}" target="_blank" style="color:#2563eb; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Link Meeting</a>
+                <a href="${a.link_meeting || '#'}" target="_blank" style="color:#2563eb; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                    ${a.link_meeting || '#'}
+                </a>
             </div>`;
       } else {
         infoLokasiHtml = `
@@ -222,7 +227,7 @@
             </div>
           </div>
           <div class="card-footer">
-            <button class="btn-view" data-action="view" title="Lihat Laporan Acara">
+            <button class="btn btn-primary btn-view" data-action="view" title="Lihat Laporan Acara">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="currentColor" stroke-width="1.5"/>
                 <path d="M14 2v6h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -240,39 +245,45 @@
     if (printTableBody) {
       // Set Tanggal Cetak
       const printDateEl = document.getElementById('printDate');
-      if(printDateEl) {
-          const now = new Date();
-          printDateEl.innerText = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      if (printDateEl) {
+        const now = new Date();
+        printDateEl.innerText = now.toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
       }
 
       printTableBody.innerHTML = filtered.map((a, index) => {
         const status = getEventStatus(a.waktu_mulai, a.waktu_selesai);
         const mode = a.mode_presensi || '-';
-        
+
         // --- LOGIKA TAMPILAN LOKASI & LINK ---
         let lokasiContent = '-';
         const linkUrl = a.link_meeting ? a.link_meeting : '';
         const lokasiFisik = a.lokasi ? a.lokasi : '';
 
         if (a.mode_presensi === 'Online') {
-            // Jika Online: Tampilkan Link saja
-            lokasiContent = `
+          // Jika Online: Tampilkan Link saja
+          lokasiContent = `
                 <span class="print-label">Online Meeting</span>
                 ${linkUrl ? `<a href="${linkUrl}" class="print-link">${linkUrl}</a>` : '<span class="text-small">-</span>'}
             `;
         } else if (a.mode_presensi === 'Kombinasi') {
-            // Jika Hybrid: Tampilkan Lokasi DAN Link
-            lokasiContent = `
+          // Jika Hybrid: Tampilkan Lokasi DAN Link
+          lokasiContent = `
                 <span class="print-label">📍 ${lokasiFisik}</span>
                 ${linkUrl ? `<div style="margin-top:6px; border-top:1px dashed #ccc; padding-top:4px;"><span class="print-label">🔗 Link:</span><br><a href="${linkUrl}" class="print-link">${linkUrl}</a></div>` : ''}
             `;
         } else {
-            // Jika Offline: Tampilkan Lokasi saja
-            lokasiContent = `<span class="print-label">📍 ${lokasiFisik}</span>`;
+          // Jika Offline: Tampilkan Lokasi saja
+          lokasiContent = `<span class="print-label">📍 ${lokasiFisik}</span>`;
         }
 
         // Status Text Color (Opsional, biar rapi hitam saja saat print)
-        const statusText = status.label; 
+        const statusText = status.label;
 
         return `
             <tr>
