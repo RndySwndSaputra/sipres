@@ -19,6 +19,7 @@
   </div>
 
   <div class="acara-toolbar">
+    {{-- 1. SEARCH (Di Kiri, Sendirian agar luas) --}}
     <div class="search">
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
         <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5"/>
@@ -26,7 +27,11 @@
       </svg>
       <input id="eventSearch" type="text" placeholder="Cari acara..." autocomplete="off" aria-label="Cari acara">
     </div>
+
+    {{-- 2. ACTIONS (Kanan: Toggle View + Filter + Tambah) --}}
     <div class="toolbar-actions">
+      
+      {{-- View Toggles --}}
       <div class="view-toggle" role="tablist" aria-label="Mode Tampilan">
         <button id="btnViewGrid" class="btn btn-toggle is-active" role="tab" aria-selected="true" aria-controls="eventGrid" aria-label="Tampilan Grid">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
@@ -43,6 +48,16 @@
           </svg>
         </button>
       </div>
+
+      {{-- FILTER STATUS (Dipindah ke Sini) --}}
+      <select id="filterStatus" class="filter-select" aria-label="Filter Status">
+        <option value="">Semua Status</option>
+        <option value="Akan Datang">Akan Datang</option>
+        <option value="Berlangsung">Sedang Berlangsung</option>
+        <option value="Selesai">Selesai</option>
+      </select>
+
+      {{-- Tombol Tambah --}}
       <button class="btn btn-primary" id="btnAddEvent">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
           <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -67,7 +82,7 @@
         <line x1="3" y1="10" x2="21" y2="10"></line>
       </svg>
       <p class="empty-message">Tidak ada acara ditemukan</p>
-      <p class="empty-hint">Coba ubah kata kunci pencarian Anda</p>
+      <p class="empty-hint">Coba ubah kata kunci pencarian atau filter status Anda</p>
     </div>
 
     <div id="mainLoading" class="loading-overlay" hidden>
@@ -75,6 +90,7 @@
     </div>
   </div>
 
+  {{-- MODAL EVENT (LENGKAP) --}}
   <div class="modal" id="eventModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="eventModalTitle">
     <div class="modal__backdrop" data-dismiss="modal"></div>
     <div class="modal__dialog" role="document">
@@ -142,7 +158,6 @@
                         <input id="linkMeeting" name="link_meeting" type="url" placeholder="https://zoom.us/j/...">
                     </div>
                 </div>
-                
             </div>
             </div>
         </div>
@@ -226,6 +241,7 @@
     </div>
   </div>
 
+  {{-- MODAL TIME SETTING --}}
   <div class="modal" id="timeSettingModal" aria-hidden="true" role="dialog">
     <div class="modal__backdrop" data-dismiss="modal"></div>
     <div class="modal__dialog" style="max-width:400px;">

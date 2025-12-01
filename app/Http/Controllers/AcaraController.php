@@ -103,15 +103,14 @@ class AcaraController extends Controller
         try {
             $user = auth()->user();
             if ($user) {
-                // FIX: Mengarahkan ke halaman Index Acara (Dashboard Acara) sesuai gambar
-                // Route: 'acara' => URL: /admin/acara
+            
                 $linkDetail = route('acara'); 
                 
                 $user->notify(new SystemNotification(
                     'acara', 
                     'info', 
                     'Acara baru ditambahkan: <span class="font-semibold">' . $acara->nama_acara . '</span>',
-                    $linkDetail // Link sekarang ke Halaman Manajemen Acara (Gambar 1)
+                    $linkDetail 
                 ));
             }
         } catch (\Exception $e) {

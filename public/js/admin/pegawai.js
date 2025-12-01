@@ -2,7 +2,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
     const tableBody = document.querySelector('#pegawaiTable tbody');
     const searchInput = document.getElementById('searchInput');
+    
+    // Selector untuk Toast (Pastikan elemen ini ada di Blade)
+    const toastContainer = document.getElementById('toastContainer'); // Container Notifikasi
+
     let debounceTimer;
+
+    // --- 0. Helper: Show Toast (Pengganti Alert) ---
+    const showToast = (message, type = 'success') => {
+        // Jika container belum ada di HTML, buat secara dinamis agar tidak error
+        let container = document.getElementById('toastContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+
+        const el = document.createElement('div');
+        el.className = `toast ${type}`;
+        el.innerHTML = `<span>${message}</span><button class="close">&times;</button>`;
+        
+        el.querySelector('.close').addEventListener('click', () => el.remove());
+        
+        container.appendChild(el);
+        
+        // Hapus otomatis setelah 3 detik
+        setTimeout(() => el.remove(), 3000);
+    };
 
     // --- 1. Load Data ---
     function loadData(query = '', pageUrl = null) {
@@ -139,12 +166,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if(data.success) {
                 modal.classList.remove('show');
                 loadData(searchInput.value); 
-                alert(data.message);
+                // GANTI ALERT DENGAN SHOWTOAST
+                showToast(data.message, 'success');
             } else {
-                alert('Gagal menyimpan: ' + (data.message || 'Error validasi'));
+                showToast('Gagal menyimpan: ' + (data.message || 'Error validasi'), 'error');
             }
         })
-        .catch(() => alert('Terjadi kesalahan sistem.'))
+        .catch(() => showToast('Terjadi kesalahan sistem.', 'error'))
         .finally(() => {
             btnSave.innerText = originalText;
             btnSave.disabled = false;
@@ -160,7 +188,12 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(res => res.json())
         .then(data => {
-            if(data.success) loadData(searchInput.value);
+            if(data.success) {
+                loadData(searchInput.value);
+                showToast(data.message || 'Pegawai berhasil dihapus', 'success');
+            } else {
+                showToast('Gagal menghapus pegawai', 'error');
+            }
         });
     };
 
@@ -235,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         
         if (fileInput.files.length === 0) {
-            alert('Silakan pilih file terlebih dahulu.');
+            showToast('Silakan pilih file terlebih dahulu.', 'error');
             return;
         }
 
@@ -252,11 +285,16 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(res => res.json())
         .then(data => {
-            alert(data.message);
-            importModal.classList.remove('show');
-            loadData();
+            // GANTI ALERT DENGAN SHOWTOAST
+            if(data.success) {
+                showToast(data.message, 'success');
+                importModal.classList.remove('show');
+                loadData();
+            } else {
+                showToast(data.message, 'error');
+            }
         })
-        .catch(() => alert('Gagal import file.'))
+        .catch(() => showToast('Gagal import file.', 'error'))
         .finally(() => {
             btnDoImport.innerText = originalText;
             btnDoImport.disabled = false;

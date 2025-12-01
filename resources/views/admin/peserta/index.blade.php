@@ -30,8 +30,16 @@
       <input id="pesertaSearch" type="text" placeholder="Cari acara..." autocomplete="off" aria-label="Cari acara">
     </div>
 
-    {{-- 2. Filter Group (Baru) --}}
+    {{-- 2. Filter Group --}}
     <div class="filter-group">
+        {{-- Filter Status (BARU) --}}
+        <select id="filterStatus" class="form-select">
+            <option value="">Semua Status</option>
+            <option value="Akan Datang">Akan Datang</option>
+            <option value="Berlangsung">Berlangsung</option>
+            <option value="Selesai">Selesai</option>
+        </select>
+
         <select id="filterJenis" class="form-select">
             <option value="">Semua Jenis</option>
             <option value="Offline">Offline</option>

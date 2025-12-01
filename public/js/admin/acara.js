@@ -14,6 +14,7 @@
     const grid = document.getElementById('eventGrid');
     const table = document.getElementById('eventTable');
     const search = document.getElementById('eventSearch');
+    const filterStatus = document.getElementById('filterStatus'); // BARU: Filter Status
     const btnAdd = document.getElementById('btnAddEvent');
     const btnViewGrid = document.getElementById('btnViewGrid');
     const btnViewTable = document.getElementById('btnViewTable');
@@ -155,24 +156,21 @@
     };
 
     // =========================================================================
-    // 4. LOGIKA FORM (UPDATED UNTUK MODE & TIPE PRESENSI)
+    // 4. LOGIKA FORM
     // =========================================================================
     
     const updateFormDisplay = () => {
-        const mode = inputModePresensi.value; // Offline, Online, Kombinasi
-        const tipe = inputTipePresensi.value; // Tradisional, Cepat
+        const mode = inputModePresensi.value; 
+        const tipe = inputTipePresensi.value; 
 
-        // 1. Reset Semua Tampilan & Requirement Step 1 & 3
         if(inputLokasi) inputLokasi.required = false;
         if(inputLink) inputLink.required = false;
         
         containerLokasi.style.display = 'none';
         containerLink.style.display = 'none';
         
-        // Default sembunyikan container tipe (di step 3)
         if(containerTipePresensi) containerTipePresensi.style.display = 'none';
 
-        // 2. Logika Show/Hide berdasarkan Jenis Acara (Step 1)
         if (mode === 'Online') {
             if(inputLink) {
                 containerLink.style.display = 'block';
@@ -199,7 +197,6 @@
             if(containerTipePresensi) containerTipePresensi.style.display = 'block';
         }
 
-        // 3. Logika Hint
         if (tipe === 'Cepat') {
             if(hintTradisional) hintTradisional.style.display = 'none';
             if(hintCepat) hintCepat.style.display = 'inline';
@@ -208,7 +205,6 @@
             if(hintCepat) hintCepat.style.display = 'none';
         }
 
-        // 4. Update Info di Step 3
         updatePresensiHint(mode, tipe);
     };
 
@@ -314,7 +310,7 @@
     });
 
     // =========================================================================
-    // 6. CRUD (FETCH & RENDER)
+    // 6. CRUD (FETCH & RENDER) - UPDATE FILTERING STATUS
     // =========================================================================
     const fetchList = async () => {
         if(loadingOverlay) loadingOverlay.hidden = false;
@@ -330,7 +326,24 @@
 
     const render = () => {
         if (typeof viewMode === 'undefined') viewMode = 'grid';
-        const list = events.filter(e => (e.nama_acara||'').toLowerCase().includes(keyword));
+        
+        // --- LOGIKA FILTER STATUS (BARU) ---
+        const statusValue = filterStatus ? filterStatus.value : ''; // Ambil nilai dropdown
+
+        const list = events.filter(e => {
+            // 1. Filter Keyword
+            const matchKeyword = (e.nama_acara||'').toLowerCase().includes(keyword);
+            if (!matchKeyword) return false;
+
+            // 2. Filter Status
+            if (statusValue) {
+                const currentStatus = getLiveStatus(e.waktu_mulai, e.waktu_selesai).label;
+                // "Akan Datang", "Selesai", "Berlangsung"
+                if (currentStatus !== statusValue) return false;
+            }
+
+            return true;
+        });
         
         if(!list.length) {
             if(grid) grid.innerHTML = '';
@@ -338,7 +351,7 @@
             if(emptyState) {
                 emptyState.hidden = false;
                 const msgEl = emptyState.querySelector('.empty-message');
-                if (msgEl) msgEl.textContent = keyword ? 'Tidak ada acara ditemukan' : 'Belum ada acara';
+                if (msgEl) msgEl.textContent = (keyword || statusValue) ? 'Tidak ada acara ditemukan' : 'Belum ada acara';
             }
             return;
         } 
@@ -704,5 +717,8 @@
     modal.addEventListener('click', (e) => { if(e.target === document.querySelector('.modal__backdrop')) { modal.classList.remove('is-open'); document.body.classList.remove('no-scroll'); } });
     if(search) { search.addEventListener('input', (e) => { keyword = (e.target.value || '').toLowerCase().trim(); render(); }); }
     
+    // --- EVENT LISTENER FILTER STATUS (BARU) ---
+    if(filterStatus) { filterStatus.addEventListener('change', render); }
+
     fetchList();
 })();
