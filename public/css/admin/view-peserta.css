@@ -2,8 +2,8 @@
    1. LAYOUT & UTILITIES
    ========================================= */
 :root {
-    --brand: #0ac14d;
-    --brand-strong: #14a649;
+    --brand: #04a43f;
+    --brand-strong: #068133;
     --gray-900: #0f172a;
     --gray-800: #1e293b;
     --gray-700: #334155;
@@ -407,10 +407,9 @@ body.no-scroll {
     box-shadow: var(--shadow-halo);
 }
 
-/* PERBAIKAN: Tulisan Note diperkecil */
 .note {
     margin-top: 8px;
-    font-size: 11px; /* Ukuran font kecil */
+    font-size: 11px;
     color: #64748b; 
     line-height: 1.4;
     font-style: italic;
@@ -435,8 +434,7 @@ body.no-scroll {
     border-bottom: none;
 }
 
-/* PERBAIKAN: Custom Checkbox Style (Agar tidak ganda) */
-/* 1. Sembunyikan input asli sepenuhnya */
+/* Checkbox Style */
 .emp-checkbox-wrapper input[type="checkbox"],
 .emp-checkbox,
 .print-cb {
@@ -447,7 +445,6 @@ body.no-scroll {
     width: 0;
 }
 
-/* 2. Pastikan wrapper bisa diklik */
 .emp-checkbox-wrapper {
     display: flex;
     align-items: center;
@@ -455,7 +452,6 @@ body.no-scroll {
     padding: 8px 0;
 }
 
-/* 3. Style Kotak Custom */
 .custom-check {
     width: 20px;
     height: 20px;
@@ -467,10 +463,9 @@ body.no-scroll {
     transition: all 0.2s;
     background-color: #fff;
     flex-shrink: 0;
-    margin-right: 12px; /* Jarak ke teks */
+    margin-right: 12px;
 }
 
-/* 4. State Checked */
 .emp-checkbox-wrapper input:checked ~ .custom-check,
 .print-cb:checked + .custom-check,
 .emp-checkbox:checked + .custom-check {
@@ -478,7 +473,6 @@ body.no-scroll {
     border-color: var(--brand);
 }
 
-/* 5. Tanda Centang */
 .custom-check::after {
     content: '';
     display: none;
@@ -564,7 +558,7 @@ body.no-scroll {
 }
 
 /* =========================================
-   3. TOAST NOTIFICATIONS (Updated Style)
+   3. TOAST NOTIFICATIONS
    ========================================= */
 .toast-container {
     position: fixed;
@@ -602,13 +596,8 @@ body.no-scroll {
     transform: translateY(0);
 }
 
-.toast-success { 
-    background-color: #15803d; 
-}
-
-.toast-error { 
-    background-color: #b91c1c; 
-}
+.toast-success { background-color: #15803d; }
+.toast-error { background-color: #b91c1c; }
 
 .toast-content {
     display: flex;
@@ -642,7 +631,7 @@ body.no-scroll {
 }
 
 /* =========================================
-   4. TAMPILAN MODAL FILTER (BARU)
+   4. TAMPILAN MODAL FILTER (DIPERBAIKI)
    ========================================= */
 .modal-filter-area {
     padding: 16px 20px;
@@ -661,25 +650,42 @@ body.no-scroll {
     width: 100%;
 }
 
-.modal select.filter-select {
+/* PERBAIKAN: Style Input agar seperti Dropdown */
+.modal .filter-select {
     width: 100%;
     background-color: #f8fafc;
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 10px;
+    padding-right: 30px; /* Ruang untuk panah */
     font-size: 13px;
     color: var(--gray-800);
-    cursor: pointer;
-    appearance: none;
+    transition: all 0.2s;
+    
+    /* Icon Panah ke bawah (SVG) */
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 12px center;
+    background-position: right 10px center;
+    background-size: 16px;
 }
 
-.modal select.filter-select:focus {
+/* Hack: Sembunyikan panah default datalist Chrome/Edge */
+.modal input.filter-select::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+/* State Focus */
+.modal .filter-select:focus {
     border-color: var(--brand);
     outline: none;
     background-color: #fff;
+    box-shadow: var(--shadow-halo);
 }
 
 .list-header-control {

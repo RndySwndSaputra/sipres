@@ -6,14 +6,17 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Models\Acara;
 use App\Models\Peserta;
-use App\Models\Pegawai; // Pastikan Model Pegawai di-import
+use App\Models\Pegawai;
 use App\Models\Presensi;
 use App\Http\Requests\Peserta\StorePesertaRequest;
 use App\Http\Requests\Peserta\UpdatePesertaRequest;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf; 
 use SimpleSoftwareIO\QrCode\Facades\QrCode; 
-use Illuminate\Support\Facades\Mail; 
+use Illuminate\Support\Facades\Mail;
+// --- TAMBAHAN LIBRARY UNTUK EXPORT ---
+use Illuminate\Support\Str; 
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PesertaController extends Controller
 {
@@ -410,5 +413,53 @@ class PesertaController extends Controller
             'success' => true,
             'message' => "Berhasil menambahkan $inserted peserta. ($skipped dilewati/sudah ada)."
         ]);
+    }
+
+    // --- FUNGSI EXPORT (YANG SEBELUMNYA HILANG) ---
+    public function export($id_acara)
+    {
+        // 1. Cari Acara
+        $acara = Acara::where('id_acara', $id_acara)->firstOrFail();
+
+        // 2. Ambil Data Peserta
+        $peserta = Peserta::where('id_acara', $id_acara)
+            ->orderBy('nama', 'asc')
+            ->get();
+
+        // 3. Setup Nama File
+        $fileName = 'Peserta_' . Str::slug($acara->nama_acara) . '_' . date('Y-m-d') . '.csv';
+
+        // 4. Buat Response Stream CSV
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function() use($peserta) {
+            $file = fopen('php://output', 'w');
+
+            // Header Kolom CSV
+            fputcsv($file, ['No', 'NIP', 'Nama', 'SKPD', 'Lokasi Unit Kerja', 'Email', 'Ponsel']);
+
+            // Isi Data
+            foreach ($peserta as $key => $row) {
+                fputcsv($file, [
+                    $key + 1,
+                    $row->nip,
+                    $row->nama,
+                    $row->skpd,
+                    $row->lokasi_unit_kerja,
+                    $row->email,
+                    $row->ponsel
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

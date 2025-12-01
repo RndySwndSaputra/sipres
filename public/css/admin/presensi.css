@@ -20,42 +20,17 @@
   font-size: 14px;
 }
 
-/* ... kode css lainnya ... */
-
-/* --- BADGE STATUS (Tambahan Baru) --- */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 0.3px;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-/* Varian Warna Biru (Online) */
-.badge-blue {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-/* Varian Warna Hijau (Hybrid) */
-.badge-green {
-  background: #f0fdf4; /* Hijau muda sekali */
-  color: #16a34a;     /* Hijau teks */
-}
-
-/* Toolbar */
+/* --- TOOLBAR: SEARCH & FILTER --- */
 .presensi-toolbar {
   display: flex;
   align-items: center;
+  justify-content: space-between; /* Kiri Search, Kanan Filter */
   gap: 12px;
   margin-bottom: 24px;
+  flex-wrap: wrap; 
 }
 
+/* Search */
 .search {
   display: inline-flex;
   align-items: center;
@@ -66,7 +41,8 @@
   border-radius: 12px;
   color: var(--gray-500);
   flex: 1;
-  max-width: 480px;
+  max-width: 380px;
+  min-width: 200px;
   transition: border-color 200ms ease, box-shadow 200ms ease;
 }
 
@@ -75,10 +51,7 @@
   box-shadow: var(--shadow-halo);
 }
 
-.search svg {
-  flex-shrink: 0;
-}
-
+.search svg { flex-shrink: 0; }
 .search input {
   border: none;
   outline: none;
@@ -88,9 +61,29 @@
   font-size: 14px;
   font-family: inherit;
 }
+.search input::placeholder { color: var(--gray-400); }
 
-.search input::placeholder {
-  color: var(--gray-400);
+/* Filter Group (Kanan) */
+.filter-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.form-select {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--gray-700);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-select:focus {
+  border-color: var(--brand);
 }
 
 /* Acara Grid */
@@ -138,25 +131,27 @@
   letter-spacing: 0.3px;
 }
 
-.status-upcoming {
-  background: #dbeafe;
-  color: #1e40af;
-}
+.status-upcoming { background: #dbeafe; color: #1e40af; }
+.status-ongoing { background: #dcfce7; color: #15803d; }
+.status-completed { background: #f3f4f6; color: #6b7280; }
 
-.status-ongoing {
-  background: #dcfce7;
-  color: #15803d;
+/* Badge Status (Online/Hybrid) */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
+.badge-blue { background: #eff6ff; color: #2563eb; }
+.badge-green { background: #f0fdf4; color: #16a34a; }
 
-.status-completed {
-  background: #f3f4f6;
-  color: #6b7280;
-}
-
-.card-body {
-  padding: 16px;
-  flex: 1;
-}
+.card-body { padding: 16px; flex: 1; }
 
 .card-title {
   margin: 0 0 14px 0;
@@ -171,10 +166,7 @@
   overflow: hidden;
 }
 
-.card-info {
-  display: grid;
-  gap: 10px;
-}
+.card-info { display: grid; gap: 10px; }
 
 .info-item {
   display: flex;
@@ -184,14 +176,8 @@
   color: var(--gray-600);
 }
 
-.info-item svg {
-  flex-shrink: 0;
-  color: var(--gray-500);
-}
-
-.info-item span {
-  line-height: 1.4;
-}
+.info-item svg { flex-shrink: 0; color: var(--gray-500); }
+.info-item span { line-height: 1.4; }
 
 .card-footer {
   padding: 12px 16px;
@@ -221,14 +207,8 @@
   background: var(--brand-strong);
   box-shadow: 0 4px 12px rgba(34,197,94,0.2);
 }
-
-.btn-view:active {
-  transform: scale(0.98);
-}
-
-.btn-view svg {
-  flex-shrink: 0;
-}
+.btn-view:active { transform: scale(0.98); }
+.btn-view svg { flex-shrink: 0; }
 
 /* Empty State */
 .empty-state {
@@ -239,29 +219,11 @@
   padding: 60px 20px;
   text-align: center;
 }
+.empty-state svg { color: var(--gray-400); margin-bottom: 16px; }
+.empty-message { margin: 0 0 6px 0; font-size: 16px; font-weight: 600; color: var(--gray-700); }
+.empty-hint { margin: 0; font-size: 14px; color: var(--muted); }
 
-.empty-state svg {
-  color: var(--gray-400);
-  margin-bottom: 16px;
-}
-
-.empty-message {
-  margin: 0 0 6px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--gray-700);
-}
-
-.empty-hint {
-  margin: 0;
-  font-size: 14px;
-  color: var(--muted);
-}
-
-[hidden] {
-  display: none !important;
-}
-
+[hidden] { display: none !important; }
 .content-area { position: relative; min-height: 240px; }
 .loading-overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(255,255,255,0.7); z-index: 50; }
 .spinner { width: 40px; height: 40px; border-radius: 50%; border: 3px solid rgba(2,6,23,0.1); border-top-color: var(--brand); animation: spin .8s linear infinite; }
@@ -269,37 +231,18 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .acara-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .search {
-    max-width: 100%;
-  }
-
-  .card-title {
-    font-size: 15px;
-  }
-
-  .info-item {
-    font-size: 12px;
-  }
-
-  .btn-view {
-    padding: 9px 14px;
-    font-size: 13px;
-  }
+  .presensi-toolbar { flex-direction: column; align-items: stretch; }
+  .search { max-width: 100%; }
+  .filter-group { width: 100%; }
+  .form-select { flex: 1; }
+  .acara-grid { grid-template-columns: 1fr; gap: 16px; }
+  .card-title { font-size: 15px; }
+  .info-item { font-size: 12px; }
+  .btn-view { padding: 9px 14px; font-size: 13px; }
 }
-
 @media (min-width: 769px) and (max-width: 1024px) {
-  .acara-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  }
+  .acara-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 }
-
 @media (min-width: 1025px) {
-  .acara-grid {
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  }
+  .acara-grid { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
 }

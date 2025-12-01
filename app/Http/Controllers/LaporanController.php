@@ -8,6 +8,7 @@ use App\Models\Peserta;
 use App\Models\Presensi;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Support\Str;
 
 class LaporanController extends Controller
 {
@@ -16,101 +17,137 @@ class LaporanController extends Controller
         return view('admin.laporan.index');
     }
 
-    public function viewLaporan(Request $request, $acaraId)
+    // --- FUNGSI UTAMA ---
+    public function viewLaporan($id)
     {
-        $acara = Acara::find($acaraId); 
-        if (!$acara) {
-            return redirect()->route('laporan')->with('error', 'Acara tidak ditemukan.');
-        }
-        return view('admin.laporan.view-laporan', [
-            'acara' => $acara
-        ]);
-    }
+        $acara = Acara::where('id_acara', $id)->firstOrFail();
 
-    public function getLaporanData(Request $request, $acaraId)
-    {
-        $acara = Acara::find($acaraId);
-        if (!$acara) {
-            return response()->json(['success' => false, 'message' => 'Acara tidak ditemukan'], 404);
-        }
-
-        $startDate = Carbon::parse($acara->waktu_mulai)->startOfDay();
-        $endDate = Carbon::parse($acara->waktu_selesai)->endOfDay();
-        
+        // 1. Range Tanggal Acara
+        $startDate = Carbon::parse($acara->waktu_mulai);
+        $endDate = Carbon::parse($acara->waktu_selesai);
         $period = CarbonPeriod::create($startDate, '1 day', $endDate);
-        $dateRange = [];
-        foreach ($period as $date) {
-            $dateRange[] = $date->format('Y-m-d');
-        }
-
-        $allPresensiRecords = Presensi::where('id_acara', $acaraId)->get();
         
-        $pesertaFromTable = Peserta::where('id_acara', $acaraId)->get();
-
-        $idsFromPresensi = $allPresensiRecords->pluck('id_peserta')->unique();
-        $idsFromPeserta = $pesertaFromTable->pluck('id_peserta')->unique();
-        $allUniquePesertaIds = $idsFromPresensi->merge($idsFromPeserta)->unique();
-
-        $pesertaList = Peserta::whereIn('id_peserta', $allUniquePesertaIds)
-                              ->orderBy('nama_peserta', 'asc')
-                              ->get();
-     
-        $allPresensi = $allPresensiRecords
-            ->groupBy('id_peserta') 
-            ->map(function ($presensiGroup) {
-                return $presensiGroup->keyBy(function ($item) {
-                    
-                    return Carbon::parse($item->waktu_hadir)->format('Y-m-d'); 
-                });
-            });
-
-        $reportData = [];
-        foreach ($pesertaList as $peserta) {
-            $attendanceData = [];
-            
-            foreach ($dateRange as $date) {
-                $presensiRecord = $allPresensi[$peserta->id_peserta][$date] ?? null;
-
-                if ($presensiRecord) {
-                    // PENTING: Ganti 'waktu_hadir' dengan nama kolom Anda
-                    $attendanceData[$date] = [
-                        'status' => 'Hadir',
-                        'timestamp' => Carbon::parse($presensiRecord->waktu_hadir)->format('H:i:s')
-                    ];
-                } else {
-                    $attendanceData[$date] = [
-                        'status' => 'Alpha',
-                        'timestamp' => '-'
-                    ];
-                }
-            }
-
-            $reportData[] = [
-                'nama' => $peserta->nama_peserta,
-                'nip' => $peserta->nip,
-                'attendance' => $attendanceData,
-            ];
+        $dates = [];
+        foreach ($period as $date) {
+            $dates[] = $date->format('Y-m-d');
         }
 
-        return response()->json([
-            'success' => true,
-            'report' => [
-                'dates' => $dateRange,
-                'participants' => $reportData,
-            ]
-        ]);
+        // 2. Ambil Peserta (Urut Abjad)
+        $peserta = Peserta::where('id_acara', $id)
+            ->orderBy('nama', 'asc')
+            ->get();
+
+        // 3. [PERBAIKAN] Ambil Data Presensi
+        // JANGAN filter where('status_kehadiran', 'Hadir').
+        // TAPI ambil semua yang punya 'waktu_presensi' (artinya dia scan).
+        $presensiLogs = Presensi::where('id_acara', $id)
+            ->whereNotNull('waktu_presensi') 
+            ->get();
+
+        // 4. Mapping Data ke Array
+        $attendanceMap = [];
+        foreach ($presensiLogs as $log) {
+            // Ambil tanggal dari waktu presensi (misal: 2025-11-29)
+            $dateKey = Carbon::parse($log->waktu_presensi)->format('Y-m-d');
+            
+            // Tandai NIP ini hadir di tanggal ini
+            $attendanceMap[$log->nip][$dateKey] = true;
+        }
+
+        // 5. Statistik
+        $stats = [
+            'total_peserta' => $peserta->count(),
+            'total_hari'    => count($dates),
+            // Hitung SKPD unik (menghindari duplikat nama dinas/kosong)
+            'total_skpd'    => $peserta->pluck('skpd')
+                                       ->map(fn($item) => strtoupper(trim($item)))
+                                       ->filter()
+                                       ->unique()
+                                       ->count()
+        ];
+
+        // Kirim data langsung ke View (Server Side Rendering)
+        return view('admin.laporan.view-laporan', compact('acara', 'peserta', 'dates', 'attendanceMap', 'stats'));
     }
 
-    public function exportLaporan(Request $request, $acaraId)
+    // --- FUNGSI EXPORT EXCEL ---
+    public function exportLaporan($id)
     {
-        $acara = Acara::find($acaraId);
-        if (!$acara) {
-            return response()->json(['success' => false, 'message' => 'Acara tidak ditemukan'], 404);
-        }
+        $acara = Acara::where('id_acara', $id)->firstOrFail();
         
-        return response()->json([
-            'success' => true, 
-            'message' => 'Fungsi ekspor ' . $acara->nama_acara . ' berhasil dipanggil.'
-        ]);
+        $startDate = Carbon::parse($acara->waktu_mulai);
+        $endDate = Carbon::parse($acara->waktu_selesai);
+        $period = CarbonPeriod::create($startDate, '1 day', $endDate);
+        
+        $dates = [];
+        foreach ($period as $date) {
+            $dates[] = $date->format('Y-m-d');
+        }
+
+        $peserta = Peserta::where('id_acara', $id)->orderBy('nama', 'asc')->get();
+        
+        // [PERBAIKAN] Logic Export disamakan dengan View
+        $presensiLogs = Presensi::where('id_acara', $id)
+            ->whereNotNull('waktu_presensi')
+            ->get();
+        
+        $attendanceMap = [];
+        foreach ($presensiLogs as $log) {
+            $dateKey = Carbon::parse($log->waktu_presensi)->format('Y-m-d');
+            $attendanceMap[$log->nip][$dateKey] = true;
+        }
+
+        $fileName = 'Laporan_' . Str::slug($acara->nama_acara) . '.csv';
+        
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function() use ($peserta, $dates, $attendanceMap) {
+            $file = fopen('php://output', 'w');
+
+            // Header CSV
+            $csvHeader = ['No', 'Nama Peserta', 'NIP', 'SKPD'];
+            foreach ($dates as $d) {
+                $csvHeader[] = $d; 
+            }
+            $csvHeader[] = 'Total Hadir';
+            $csvHeader[] = 'Persentase';
+            
+            fputcsv($file, $csvHeader);
+
+            // Baris Data
+            foreach ($peserta as $key => $p) {
+                $row = [
+                    $key + 1,
+                    $p->nama,
+                    "'" . $p->nip,
+                    $p->skpd
+                ];
+
+                $hadirCount = 0;
+                foreach ($dates as $d) {
+                    if (isset($attendanceMap[$p->nip][$d])) {
+                        $row[] = "Hadir";
+                        $hadirCount++;
+                    } else {
+                        $row[] = "Tidak Hadir";
+                    }
+                }
+                
+                $row[] = $hadirCount;
+                $persentase = count($dates) > 0 ? round(($hadirCount / count($dates)) * 100) . '%' : '0%';
+                $row[] = $persentase;
+
+                fputcsv($file, $row);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

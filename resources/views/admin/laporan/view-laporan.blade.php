@@ -29,7 +29,6 @@
         <p class="subtitle" id="eventInfo">Rekapitulasi Kehadiran Peserta Harian</p>
       </div>
     </div>
-    {{-- Tombol "Unduh Laporan" dipindahkan ke toolbar di bawah --}}
   </div>
 
   <div class="peserta-toolbar">

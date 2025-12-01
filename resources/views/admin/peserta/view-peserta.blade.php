@@ -213,14 +213,12 @@
          </div>
          <div class="filter-grid">
              <div>
-                 <select id="filterEmpSkpd" class="filter-select">
-                     <option value="">Semua SKPD</option>
-                 </select>
+                 <input type="text" id="filterEmpSkpd" list="listEmpSkpd" class="filter-select" placeholder="Ketik/Pilih SKPD..." autocomplete="off">
+                 <datalist id="listEmpSkpd"></datalist>
              </div>
              <div>
-                 <select id="filterEmpLokasi" class="filter-select">
-                     <option value="">Semua Lokasi Unit Kerja</option>
-                 </select>
+                 <input type="text" id="filterEmpLokasi" list="listEmpLokasi" class="filter-select" placeholder="Ketik/Pilih Lokasi..." autocomplete="off">
+                 <datalist id="listEmpLokasi"></datalist>
              </div>
          </div>
       </div>
@@ -325,14 +323,12 @@
             
             <div class="filter-grid">
                 <div>
-                    <select id="filterPrintSkpd" class="filter-select">
-                        <option value="">Semua SKPD</option>
-                    </select>
+                    <input type="text" id="filterPrintSkpd" list="listPrintSkpd" class="filter-select" placeholder="Ketik/Pilih SKPD..." autocomplete="off">
+                    <datalist id="listPrintSkpd"></datalist>
                 </div>
                 <div>
-                    <select id="filterPrintLokasi" class="filter-select">
-                        <option value="">Semua Lokasi</option>
-                    </select>
+                    <input type="text" id="filterPrintLokasi" list="listPrintLokasi" class="filter-select" placeholder="Ketik/Pilih Lokasi..." autocomplete="off">
+                    <datalist id="listPrintLokasi"></datalist>
                 </div>
             </div>
         </div>

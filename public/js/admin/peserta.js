@@ -1,6 +1,9 @@
 (() => {
   const acaraGrid = document.getElementById('acaraGrid');
   const search = document.getElementById('pesertaSearch');
+  const filterJenis = document.getElementById('filterJenis'); // Baru
+  const filterBulan = document.getElementById('filterBulan'); // Baru
+  const filterTahun = document.getElementById('filterTahun'); // Baru
   const emptyState = document.getElementById('emptyState');
   const loadingOverlay = document.getElementById('pesertaLoading');
 
@@ -70,15 +73,33 @@
   };
 
   let acara = [];
-  let keyword = '';
 
   const render = () => {
+    const keyword = (search.value || '').toLowerCase().trim();
+    const valJenis = filterJenis ? filterJenis.value : '';
+    const valBulan = filterBulan ? filterBulan.value : '';
+    const valTahun = filterTahun ? filterTahun.value : '';
+
     const filtered = acara.filter(a => {
-      const q = keyword.toLowerCase();
-      return (
-        (a.nama_acara || '').toLowerCase().includes(q) ||
-        (a.lokasi || '').toLowerCase().includes(q)
-      );
+      // 1. Search Keyword
+      const matchKey = (a.nama_acara || '').toLowerCase().includes(keyword) ||
+                       (a.lokasi || '').toLowerCase().includes(keyword);
+
+      // 2. Filter Jenis
+      let matchJenis = true;
+      if (valJenis) {
+         matchJenis = (a.mode_presensi === valJenis);
+      }
+
+      // 3. Filter Waktu (Bulan & Tahun)
+      let matchDate = true;
+      if (valBulan || valTahun) {
+          const dateObj = new Date(a.waktu_mulai);
+          if (valBulan && (dateObj.getMonth() + 1) != valBulan) matchDate = false;
+          if (valTahun && dateObj.getFullYear() != valTahun) matchDate = false;
+      }
+
+      return matchKey && matchJenis && matchDate;
     });
 
     if (filtered.length === 0) {
@@ -90,8 +111,6 @@
     emptyState.hidden = true;
     acaraGrid.innerHTML = filtered.map(a => {
       const status = getEventStatus(a.waktu_mulai, a.waktu_selesai);
-      
-      const mode = (a.mode_presensi || '').toLowerCase();
       const isOnline = a.mode_presensi === 'Online';
       const isHybrid = a.mode_presensi === 'Kombinasi';
 
@@ -107,14 +126,12 @@
       let infoLokasiHtml = '';
 
       if (isOnline) {
-          // HANYA LINK
           infoLokasiHtml = `
               <div class="info-item" title="Link Meeting">
                   ${iconLink} 
                   <a href="${linkUrl}" target="_blank" style="color:#2563eb; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${linkUrl}</a>
               </div>`;
       } else if (isHybrid) {
-          // KEDUANYA (LOKASI + LINK)
           infoLokasiHtml = `
               <div class="info-item" title="Lokasi">
                   ${iconLoc} 
@@ -125,7 +142,6 @@
                   <a href="${linkUrl}" target="_blank" style="color:#2563eb; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${linkUrl}</a>
               </div>`;
       } else {
-          // OFFLINE (DEFAULT) -> HANYA LOKASI
           infoLokasiHtml = `
               <div class="info-item" title="Lokasi">
                   ${iconLoc} 
@@ -138,7 +154,6 @@
           <div class="card-header">
             <div style="display:flex; gap:8px; align-items:center; width:100%; justify-content:space-between;">
                 <div class="card-status ${status.class}">${status.label}</div>
-                
                 <div style="display:flex; gap:4px;">
                     ${isOnline ? '<span class="badge badge-blue">ONLINE</span>' : ''}
                     ${isHybrid ? '<span class="badge badge-green">HYBRID</span>' : ''}
@@ -155,7 +170,6 @@
                 </svg>
                 <span>${formatDate(a.waktu_mulai)} - ${formatDate(a.waktu_selesai)}</span>
               </div>
-              
               <div class="info-item">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
                   <path d="M12 2v8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -163,9 +177,7 @@
                 </svg>
                 <span>${timeRange(a.waktu_mulai, a.waktu_selesai)}</span>
               </div>
-
               ${infoLokasiHtml}
-
               <div class="info-item">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
                     <path d="M17 21v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -193,10 +205,11 @@
     }).join('');
   };
 
-  search.addEventListener('input', (e) => {
-    keyword = (e.target.value || '').trim();
-    render();
-  });
+  // Event Listeners
+  search.addEventListener('input', render);
+  if(filterJenis) filterJenis.addEventListener('change', render);
+  if(filterBulan) filterBulan.addEventListener('change', render);
+  if(filterTahun) filterTahun.addEventListener('input', render);
 
   acaraGrid.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-action="view"]');

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use App\Models\Acara;
-use App\Notifications\SystemNotification; // Pastikan ini di-import
+use App\Notifications\SystemNotification; 
 use Carbon\Carbon;
 
 class AcaraController extends Controller
@@ -99,22 +99,24 @@ class AcaraController extends Controller
 
         $acara = Acara::create($validated);
 
-        // --- PERBAIKAN: TAMBAHKAN LINK NOTIFIKASI ---
+        // --- NOTIFIKASI ACARA BARU ---
         try {
             $user = auth()->user();
             if ($user) {
-                // Parameter: (Kategori, Tipe, Pesan, URL)
+                // FIX: Mengarahkan ke halaman Index Acara (Dashboard Acara) sesuai gambar
+                // Route: 'acara' => URL: /admin/acara
+                $linkDetail = route('acara'); 
+                
                 $user->notify(new SystemNotification(
                     'acara', 
                     'info', 
                     'Acara baru ditambahkan: <span class="font-semibold">' . $acara->nama_acara . '</span>',
-                    route('acara.presensi', $acara->id_acara) // <-- LINK DITAMBAHKAN DISINI (Mengarah ke detail presensi acara)
+                    $linkDetail // Link sekarang ke Halaman Manajemen Acara (Gambar 1)
                 ));
             }
         } catch (\Exception $e) {
             Log::error('Gagal mengirim notifikasi acara: ' . $e->getMessage());
         }
-        // --------------------------------------------
 
         return response()->json([
             'success' => true,

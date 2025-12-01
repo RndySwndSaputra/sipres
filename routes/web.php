@@ -117,6 +117,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         
         // Import & Export
         Route::post('/peserta/import/{acara}', 'import')->name('peserta.import');
+        Route::get('/peserta/export/{acara}','export')->name('peserta.export');
         Route::get('/peserta/print-qr/{id_acara}', 'downloadQrPdf')->name('peserta.print-qr');
 
         // Fitur Kirim QR (WA/Email)

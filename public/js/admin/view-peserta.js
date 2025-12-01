@@ -10,6 +10,7 @@
   const btnAdd = document.getElementById('btnAddPeserta');
   const btnPrint = document.getElementById('btnPrintQr'); 
   const btnSendQrMass = document.getElementById('btnSendQrMass');
+  const btnExport = document.getElementById('btnExport'); // SELEKTOR TOMBOL EXPORT
   
   // Layout Elements
   const emptyState = document.getElementById('emptyState');
@@ -45,8 +46,8 @@
   // Print Modal & Filters
   const printModal = document.getElementById('printModal');
   const filterPrintSearch = document.getElementById('filterPrintSearch');
-  const filterPrintSkpd = document.getElementById('filterPrintSkpd');
-  const filterPrintLokasi = document.getElementById('filterPrintLokasi');
+  const filterPrintSkpd = document.getElementById('filterPrintSkpd'); 
+  const filterPrintLokasi = document.getElementById('filterPrintLokasi'); 
   const checkAllPrint = document.getElementById('checkAllPrint');
   const printListContainer = document.getElementById('printParticipantList');
   const selectedCountPrint = document.getElementById('selectedCount');
@@ -56,8 +57,8 @@
   const modalEmp = document.getElementById('employeeSelectorModal');
   const listEmpContainer = document.getElementById('employeeListContainer');
   const filterEmpSearch = document.getElementById('filterEmpSearch');
-  const filterEmpSkpd = document.getElementById('filterEmpSkpd');
-  const filterEmpLokasi = document.getElementById('filterEmpLokasi'); // Filter Lokasi Baru
+  const filterEmpSkpd = document.getElementById('filterEmpSkpd'); 
+  const filterEmpLokasi = document.getElementById('filterEmpLokasi'); 
   const checkAllPegawai = document.getElementById('checkAllPegawai');
   const btnSubmitSelectedEmp = document.getElementById('btnSubmitSelectedEmp');
   const selectedEmpCountLabel = document.getElementById('selectedEmpCount');
@@ -77,7 +78,7 @@
     return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
   };
 
-  // --- TOAST TANPA ICON (Murni Teks + Close) ---
+  // --- TOAST ---
   const showToast = (message, type = 'success') => {
       if (!toastContainer) return;
       
@@ -171,8 +172,6 @@
     if (!eventId || isLoading) return;
     isLoading = true;
     
-    // Gunakan page=1 & per_page besar atau looping pagination jika perlu full list
-    // Disini asumsi load per page untuk table utama
     fetch(`/admin/peserta/data/${eventId}?page=1&per_page=100&q=${encodeURIComponent(keyword)}`, { headers: { 'Accept': 'application/json' } })
       .then(res => res.json())
       .then(json => {
@@ -326,18 +325,24 @@
   if(btnSendViaEmail) btnSendViaEmail.addEventListener('click', () => sendQrSingle('email'));
 
   // =========================================================================
-  // 7. PRINT MODAL (FILTER & SELECT ALL FIXED)
+  // 7. PRINT MODAL (FILTER & SELECT ALL) - WITH TYPING
   // =========================================================================
   const renderPrintListFiltered = () => {
       const keyword = filterPrintSearch.value.toLowerCase();
-      const skpdVal = filterPrintSkpd.value;
-      const lokVal = filterPrintLokasi.value;
+      const skpdVal = filterPrintSkpd.value.toLowerCase();
+      const lokVal = filterPrintLokasi.value.toLowerCase();
 
       currentFilteredPrintList = allPrintParticipants.filter(p => {
           const matchName = (p.nama || '').toLowerCase().includes(keyword) || (p.nip || '').includes(keyword);
-          const matchSkpd = skpdVal === '' || p.skpd === skpdVal;
-          const pLokasi = p.lokasi_unit_kerja || ''; 
-          const matchLok = lokVal === '' || pLokasi === lokVal;
+          
+          const pSkpd = (p.skpd || '').toLowerCase();
+          // GUNAKAN INCLUDES AGAR BISA KETIK SEBAGIAN
+          const matchSkpd = skpdVal === '' || pSkpd.includes(skpdVal);
+
+          const pLokasi = (p.lokasi_unit_kerja || '').toLowerCase(); 
+          // GUNAKAN INCLUDES AGAR BISA KETIK SEBAGIAN
+          const matchLok = lokVal === '' || pLokasi.includes(lokVal);
+          
           return matchName && matchSkpd && matchLok;
       });
 
@@ -365,7 +370,6 @@
         </div>
       `).join('');
 
-      // Scope listener to print container
       const checkboxes = printListContainer.querySelectorAll('.print-cb');
       checkboxes.forEach(cb => {
           cb.addEventListener('change', updatePrintSelectedCount);
@@ -376,7 +380,6 @@
   };
 
   const updatePrintSelectedCount = () => {
-      // PENTING: Hitung hanya di dalam print container
       const checkboxes = printListContainer.querySelectorAll('.print-cb:checked');
       const count = checkboxes.length;
       
@@ -392,8 +395,15 @@
       printListContainer.innerHTML = '<div style="padding:20px;text-align:center;">Memuat data...</div>';
       
       filterPrintSearch.value = '';
-      filterPrintSkpd.innerHTML = '<option value="">Semua SKPD</option>';
-      filterPrintLokasi.innerHTML = '<option value="">Semua Lokasi</option>';
+      filterPrintSkpd.value = ''; 
+      filterPrintLokasi.value = ''; 
+      
+      // Kosongkan Datalist
+      const listSkpd = document.getElementById('listPrintSkpd');
+      const listLokasi = document.getElementById('listPrintLokasi');
+      if(listSkpd) listSkpd.innerHTML = '';
+      if(listLokasi) listLokasi.innerHTML = '';
+
       if(checkAllPrint) checkAllPrint.checked = false;
       if(selectedCountPrint) selectedCountPrint.textContent = '0 terpilih';
 
@@ -404,12 +414,10 @@
               allPrintParticipants = json.data;
               
               const uniqueSkpd = [...new Set(allPrintParticipants.map(p => p.skpd))].filter(Boolean).sort();
-              filterPrintSkpd.innerHTML = '<option value="">Semua SKPD</option>' + 
-                  uniqueSkpd.map(s => `<option value="${s}">${s}</option>`).join('');
+              if(listSkpd) listSkpd.innerHTML = uniqueSkpd.map(s => `<option value="${s}">`).join('');
 
               const uniqueLok = [...new Set(allPrintParticipants.map(p => p.lokasi_unit_kerja))].filter(Boolean).sort();
-              filterPrintLokasi.innerHTML = '<option value="">Semua Lokasi</option>' + 
-                  uniqueLok.map(l => `<option value="${l}">${l}</option>`).join('');
+              if(listLokasi) listLokasi.innerHTML = uniqueLok.map(l => `<option value="${l}">`).join('');
 
               renderPrintListFiltered();
           } else {
@@ -421,9 +429,10 @@
       });
   });
 
+  // GUNAKAN EVENT 'INPUT' UNTUK PENCARIAN REAL-TIME
   if(filterPrintSearch) filterPrintSearch.addEventListener('input', renderPrintListFiltered);
-  if(filterPrintSkpd) filterPrintSkpd.addEventListener('change', renderPrintListFiltered);
-  if(filterPrintLokasi) filterPrintLokasi.addEventListener('change', renderPrintListFiltered);
+  if(filterPrintSkpd) filterPrintSkpd.addEventListener('input', renderPrintListFiltered);
+  if(filterPrintLokasi) filterPrintLokasi.addEventListener('input', renderPrintListFiltered);
 
   if(checkAllPrint) {
       checkAllPrint.addEventListener('change', (e) => {
@@ -443,17 +452,22 @@
   });
 
   // =========================================================================
-  // 8. BULK EMPLOYEE SELECT MODAL (FIXED & SCOPED)
+  // 8. BULK EMPLOYEE SELECT MODAL (FIXED & SCOPED) - WITH TYPING
   // =========================================================================
   const loadEmployees = () => {
       listEmpContainer.innerHTML = '<div style="padding:40px;text-align:center;color:#64748b;">Memuat data pegawai...</div>';
       
-      // Reset state saat buka modal
       if(checkAllPegawai) checkAllPegawai.checked = false;
       if(selectedEmpCountLabel) selectedEmpCountLabel.textContent = '0 Pegawai dipilih';
       filterEmpSearch.value = '';
-      filterEmpSkpd.innerHTML = '<option value="">Semua SKPD</option>';
-      filterEmpLokasi.innerHTML = '<option value="">Semua Lokasi Unit Kerja</option>';
+      filterEmpSkpd.value = ''; 
+      filterEmpLokasi.value = ''; 
+      
+      // Kosongkan Datalist
+      const listSkpd = document.getElementById('listEmpSkpd');
+      const listLokasi = document.getElementById('listEmpLokasi');
+      if(listSkpd) listSkpd.innerHTML = '';
+      if(listLokasi) listLokasi.innerHTML = '';
 
       fetch('/admin/pegawai/all-json', { headers: { 'Accept': 'application/json' } }) 
       .then(res => res.json())
@@ -461,12 +475,11 @@
           if(json.success) {
               availableEmployees = json.data; 
               
-              // Populate Filters
               const skpds = [...new Set(availableEmployees.map(e => e.skpd))].filter(Boolean).sort();
-              filterEmpSkpd.innerHTML = '<option value="">Semua SKPD</option>' + skpds.map(s => `<option value="${s}">${s}</option>`).join('');
+              if(listSkpd) listSkpd.innerHTML = skpds.map(s => `<option value="${s}">`).join('');
               
               const locations = [...new Set(availableEmployees.map(e => e.lokasi_unit_kerja))].filter(Boolean).sort();
-              filterEmpLokasi.innerHTML = '<option value="">Semua Lokasi Unit Kerja</option>' + locations.map(l => `<option value="${l}">${l}</option>`).join('');
+              if(listLokasi) listLokasi.innerHTML = locations.map(l => `<option value="${l}">`).join('');
 
               renderEmployeeListFiltered();
           } else {
@@ -480,13 +493,20 @@
 
   const renderEmployeeListFiltered = () => {
       const term = filterEmpSearch.value.toLowerCase();
-      const skpd = filterEmpSkpd.value;
-      const lokasi = filterEmpLokasi.value;
+      const skpd = filterEmpSkpd.value.toLowerCase();
+      const lokasi = filterEmpLokasi.value.toLowerCase();
       
       currentVisibleEmployees = availableEmployees.filter(e => {
           const matchName = (e.nama||'').toLowerCase().includes(term) || (e.nip||'').includes(term);
-          const matchSkpd = skpd === '' || e.skpd === skpd;
-          const matchLokasi = lokasi === '' || (e.lokasi_unit_kerja||'') === lokasi;
+          
+          const eSkpd = (e.skpd || '').toLowerCase();
+          // GUNAKAN INCLUDES AGAR BISA KETIK SEBAGIAN
+          const matchSkpd = skpd === '' || eSkpd.includes(skpd);
+          
+          const eLokasi = (e.lokasi_unit_kerja||'').toLowerCase();
+          // GUNAKAN INCLUDES AGAR BISA KETIK SEBAGIAN
+          const matchLokasi = lokasi === '' || eLokasi.includes(lokasi);
+
           return matchName && matchSkpd && matchLokasi;
       });
 
@@ -510,7 +530,6 @@
           </div>
       `).join('');
       
-      // Scoped listener
       const checkboxes = listEmpContainer.querySelectorAll('.emp-checkbox');
       checkboxes.forEach(cb => {
           cb.addEventListener('change', updateSelectedEmpCount);
@@ -521,7 +540,6 @@
   };
 
   const updateSelectedEmpCount = () => {
-      // PENTING: Hanya hitung checkbox di dalam list container ini
       const checkboxes = listEmpContainer.querySelectorAll('.emp-checkbox:checked');
       const count = checkboxes.length;
       
@@ -540,13 +558,12 @@
   }
   
   if(filterEmpSearch) filterEmpSearch.addEventListener('input', renderEmployeeListFiltered);
-  if(filterEmpSkpd) filterEmpSkpd.addEventListener('change', renderEmployeeListFiltered);
-  if(filterEmpLokasi) filterEmpLokasi.addEventListener('change', renderEmployeeListFiltered);
+  if(filterEmpSkpd) filterEmpSkpd.addEventListener('input', renderEmployeeListFiltered);
+  if(filterEmpLokasi) filterEmpLokasi.addEventListener('input', renderEmployeeListFiltered);
   
   if(checkAllPegawai) {
       checkAllPegawai.addEventListener('change', (e) => {
           const isChecked = e.target.checked;
-          // Hanya target visible rows
           const visibleCheckboxes = listEmpContainer.querySelectorAll('.emp-checkbox');
           visibleCheckboxes.forEach(cb => cb.checked = isChecked);
           updateSelectedEmpCount();
@@ -618,7 +635,17 @@
   }
 
   // =========================================================================
-  // 10. GLOBAL SEARCH & CLOSE
+  // 10. EXPORT LOGIC (DITAMBAHKAN)
+  // =========================================================================
+  if(btnExport) {
+    btnExport.addEventListener('click', () => {
+        // Mengarahkan ke route export (pastikan route ini ada di web.php)
+        window.location.href = `/admin/peserta/export/${eventId}`;
+    });
+  }
+
+  // =========================================================================
+  // 11. GLOBAL SEARCH & CLOSE
   // =========================================================================
   search.addEventListener('input', (e) => { keyword = e.target.value; fetchPesertaList(true); });
 

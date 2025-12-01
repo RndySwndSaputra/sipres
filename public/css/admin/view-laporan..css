@@ -1,4 +1,4 @@
-/* Page Header (sedikit penyesuaian dari base) */
+/* Page Header */
 .page-header {
   align-items: flex-start;
   margin-bottom: 24px;
@@ -71,7 +71,7 @@
 .laporan-table td {
   padding: 12px 14px;
   border-bottom: 1px solid var(--border);
-  border-right: 1px solid var(--border); /* Tambah border kanan */
+  border-right: 1px solid var(--border);
   text-align: left;
   font-size: 14px;
   line-height: 1.5;
@@ -80,7 +80,7 @@
 
 .laporan-table tr th:last-child,
 .laporan-table tr td:last-child {
-  border-right: none; /* Hapus border kanan di kolom terakhir */
+  border-right: none;
 }
 
 /* Header Styling */
@@ -124,7 +124,7 @@
 .laporan-table th.col-nip,
 .laporan-table td[data-label="NIP"] {
   position: sticky;
-  left: 200px; /* Lebar col-nama (sesuaikan jika perlu) */
+  left: 200px; /* Lebar col-nama */
   z-index: 1;
   background: #ffffff;
   border-right: 1px solid var(--border);
@@ -181,7 +181,7 @@
   font-weight: 700;
 }
 
-/* Loading & Empty State (Hanya override minimal) */
+/* Loading & Empty State */
 .content-area { 
   position: relative; 
   min-height: 300px; 

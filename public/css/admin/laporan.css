@@ -1,4 +1,6 @@
-/* Page Header */
+/* =========================================
+   STYLE UMUM (Header & Typography)
+   ========================================= */
 .page-header {
   display: flex;
   align-items: flex-end;
@@ -20,12 +22,16 @@
   font-size: 14px;
 }
 
-/* Toolbar (Nama class diubah) */
+/* =========================================
+   TOOLBAR (Search, Filter, Print)
+   ========================================= */
 .laporan-toolbar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
 .search {
@@ -38,12 +44,13 @@
   border-radius: 12px;
   color: var(--gray-500);
   flex: 1;
-  max-width: 480px;
-  transition: border-color 200ms ease, box-shadow 200ms ease;
+  max-width: 350px;
+  min-width: 200px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .search:focus-within {
-  border-color: rgba(34,197,94,0.35);
+  border-color: rgba(34, 197, 94, 0.35);
   box-shadow: var(--shadow-halo);
 }
 
@@ -61,11 +68,53 @@
   font-family: inherit;
 }
 
-.search input::placeholder {
-  color: var(--gray-400);
+.filter-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-/* Acara Grid */
+.form-select {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--gray-700);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-select:focus {
+  border-color: var(--brand);
+}
+
+.btn-print {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #ffffff;
+  border: 1px solid var(--gray-300);
+  color: var(--gray-700);
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  height: 42px;
+  font-size: 14px;
+}
+
+.btn-print:hover {
+  background: #f8fafc;
+  border-color: var(--gray-400);
+  color: var(--gray-900);
+}
+
+/* =========================================
+   GRID VIEW (Kartu Acara)
+   ========================================= */
 .acara-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -73,27 +122,24 @@
   margin-bottom: 24px;
 }
 
-/* Acara Card (Semua class lain tetap sama) */
 .acara-card {
   background: #ffffff;
   border: 1px solid var(--border);
   border-radius: 14px;
   overflow: hidden;
-  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
-  box-shadow: 0 2px 8px rgba(2,6,23,0.04);
   display: flex;
   flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .acara-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(2,6,23,0.08);
-  border-color: rgba(2,6,23,0.12);
+  box-shadow: 0 8px 16px rgba(2, 6, 23, 0.08);
 }
 
 .card-header {
   padding: 12px 16px;
-  background: rgba(2,6,23,0.02);
+  background: rgba(2, 6, 23, 0.02);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -107,7 +153,6 @@
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.3px;
 }
 
 .status-upcoming {
@@ -123,6 +168,26 @@
 .status-completed {
   background: #f3f4f6;
   color: #6b7280;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.badge-blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.badge-green {
+  background: #f0fdf4;
+  color: #16a34a;
 }
 
 .card-body {
@@ -161,40 +226,10 @@
   color: var(--gray-500);
 }
 
-.info-item span {
-  line-height: 1.4;
-}
-
 .card-footer {
   padding: 12px 16px;
   border-top: 1px solid var(--border);
-  background: rgba(2,6,23,0.01);
-}
-
-/* ... kode css lainnya ... */
-
-/* --- BADGE STATUS (Tambahan Baru) --- */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 0.3px;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.badge-blue {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.badge-green {
-  background: #f0fdf4;
-  color: #16a34a;
+  background: rgba(2, 6, 23, 0.01);
 }
 
 .btn-view {
@@ -205,30 +240,22 @@
   gap: 8px;
   padding: 10px 16px;
   border-radius: 10px;
-  border: 1px solid rgba(34,197,94,0.4);
+  border: 1px solid rgba(34, 197, 94, 0.4);
   background: var(--brand);
   color: #ffffff;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  transition: background 150ms ease, box-shadow 150ms ease, transform 150ms ease;
-  user-select: none;
+  transition: background 0.15s ease;
 }
 
 .btn-view:hover {
   background: var(--brand-strong);
-  box-shadow: 0 4px 12px rgba(34,197,94,0.2);
 }
 
-.btn-view:active {
-  transform: scale(0.98);
-}
-
-.btn-view svg {
-  flex-shrink: 0;
-}
-
-/* Empty State */
+/* =========================================
+   EMPTY STATE & LOADING
+   ========================================= */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -244,60 +271,118 @@
 }
 
 .empty-message {
-  margin: 0 0 6px 0;
+  margin: 0;
   font-size: 16px;
   font-weight: 600;
   color: var(--gray-700);
-}
-
-.empty-hint {
-  margin: 0;
-  font-size: 14px;
-  color: var(--muted);
 }
 
 [hidden] {
   display: none !important;
 }
 
-.content-area { position: relative; min-height: 240px; }
-.loading-overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(255,255,255,0.7); z-index: 50; }
-.spinner { width: 40px; height: 40px; border-radius: 50%; border: 3px solid rgba(2,6,23,0.1); border-top-color: var(--brand); animation: spin .8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.content-area {
+  position: relative;
+  min-height: 240px;
+}
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .acara-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.7);
+  z-index: 50;
+}
 
-  .search {
-    max-width: 100%;
-  }
+.spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid rgba(2, 6, 23, 0.1);
+  border-top-color: var(--brand);
+  animation: spin 0.8s linear infinite;
+}
 
-  .card-title {
-    font-size: 15px;
-  }
-
-  .info-item {
-    font-size: 12px;
-  }
-
-  .btn-view {
-    padding: 9px 14px;
-    font-size: 13px;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
-  .acara-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  }
-}
+/* =========================================
+   PRINT STYLE (Agar saat print jadi Tabel)
+   ========================================= */
 
-@media (min-width: 1025px) {
-  .acara-grid {
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+/* Default: Sembunyikan Tabel di layar Web */
+.print-only { display: none; }
+
+@media print {
+  /* 1. Sembunyikan elemen Web */
+  nav, aside, .sidebar, .navbar, .page-header, .laporan-toolbar, 
+  .card-footer, .btn-view, .notification-bell, .user-profile, .acara-grid {
+    display: none !important;
   }
+
+  /* 2. Tampilkan Tabel Print */
+  .print-only { display: block !important; }
+
+  /* 3. Reset Layout */
+  body, .main-content {
+    background: white !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    width: 100% !important;
+    font-family: Arial, Helvetica, sans-serif; /* Font formal */
+  }
+
+  /* 4. Header Laporan */
+  .print-header { text-align: center; margin-bottom: 25px; }
+  .print-header h2 { margin: 0; font-size: 16pt; font-weight: 800; text-transform: uppercase; color: #000; }
+  .print-header p { margin: 5px 0; font-size: 11pt; color: #333; }
+  .print-date { font-size: 9pt; font-style: italic; color: #555; margin-top: 5px; }
+
+  /* 5. Tabel Laporan - LEBIH RAPI */
+  .table-rekap {
+    width: 100%;
+    border-collapse: collapse; /* Garis menyatu rapi */
+    font-size: 10pt;
+  }
+
+  .table-rekap th, .table-rekap td {
+    border: 1px solid #000; /* Garis hitam tegas */
+    padding: 10px 8px;      /* Spasi dalam kotak lebih lega */
+    text-align: left;
+    vertical-align: top;    /* Teks selalu mulai dari atas */
+    line-height: 1.4;       /* Jarak antar baris teks */
+  }
+
+  .table-rekap th {
+    background-color: #f2f2f2 !important; /* Abu muda */
+    font-weight: bold;
+    text-align: center;     /* Header tengah */
+    text-transform: uppercase;
+    font-size: 9pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Style khusus untuk teks kecil (waktu, status) */
+  .text-small { font-size: 9pt; color: #444; margin-top: 4px; display: block; }
+  
+  /* STYLE KHUSUS LINK AGAR RAPI */
+  .print-link {
+    font-size: 9pt;
+    color: #2563eb;
+    text-decoration: underline;
+    word-break: break-all; /* PENTING: Memotong link panjang */
+    display: block;
+    margin-top: 4px;
+  }
+  
+  /* Style label lokasi/jenis */
+  .print-label { font-weight: 600; font-size: 9pt; color: #000; }
+  
+  /* Kolom Peserta & No ditengah */
+  .col-center { text-align: center !important; }
 }

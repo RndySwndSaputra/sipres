@@ -131,10 +131,8 @@
       return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
   };
 
-  // FUNGSI UTAMA: Mengambil Data dari Database (AJAX)
   const fetchNotifications = async () => {
       try {
-          // Panggil route /admin/notifications
           const res = await fetch('/admin/notifications', {
               headers: { 'Accept': 'application/json' }
           });
@@ -147,13 +145,11 @@
                   renderNotifications();   
               }
           } else {
-             // Jika server error (500/404), lempar error agar ditangkap catch
              throw new Error(`Server Error: ${res.status}`);
           }
       } catch (e) {
           console.error('Gagal memuat notifikasi:', e);
-          
-          // [FIX UTAMA] Tampilkan pesan gagal di UI agar loading tidak stuck
+
           notificationList.innerHTML = `
             <div class="empty-notifications" style="padding: 20px; text-align: center;">
                 <p style="font-size:12px; color:#64748b;">Gagal memuat data.</p>
@@ -161,7 +157,6 @@
       }
   };
 
-  // Update Badge Merah (Angka)
   const updateBadge = (count) => {
       if (notificationBadge) {
           notificationBadge.textContent = count;
@@ -169,7 +164,6 @@
       }
   };
 
-  // Render List Notifikasi ke HTML
   const renderNotifications = () => {
     const filtered = currentFilter === 'all' 
       ? notificationsData 
@@ -188,7 +182,6 @@
       return;
     }
 
-    // PERUBAHAN DISINI: Menggunakan tag <a> href="..." agar bisa diklik
     notificationList.innerHTML = filtered.map(notif => `
       <a href="${notif.url}" class="notification-item ${notif.read_at ? 'read' : 'unread'}" data-id="${notif.id}">
         <div class="notification-icon notification-icon--${notif.type}">
@@ -203,7 +196,6 @@
     `).join('');
   };
 
-  // Tandai Semua Dibaca
   const markAllRead = async () => {
       const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
       try {
@@ -218,17 +210,14 @@
       } catch (e) { console.error(e); }
   };
 
-  // --- Event Listeners ---
-
-  // Toggle Dropdown
   dropdownToggle.addEventListener('click', (e) => {
     e.stopPropagation();
     const isOpen = dropdown.classList.toggle('is-open');
     dropdownToggle.setAttribute('aria-expanded', String(isOpen));
     
     if (isOpen) {
-      fetchNotifications(); // Ambil data terbaru saat dibuka
-      markAllRead();        // Otomatis tandai dibaca
+      fetchNotifications(); 
+      markAllRead();        
     }
   });
 
@@ -263,9 +252,7 @@
     }
   });
 
-  // Initial Load
   fetchNotifications();
-  
-  // Auto refresh badge setiap 30 detik
-  setInterval(fetchNotifications, 30000);
+
+  setInterval(fetchNotifications, 4000);
 })();
