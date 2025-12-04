@@ -7,15 +7,17 @@
 @endpush
 
 @push('scripts')
-  {{-- Gunakan Chart.js (CDN) --}}
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="{{ asset('js/admin/dashboard.js') }}" defer></script>
   
-  {{-- Pass data Chart dari Controller ke JS --}}
+  {{-- Pass data Chart Complex ke JS --}}
   <script>
       var chartDataConfig = {
           labels: @json($chartLabels),
-          data: @json($chartData)
+          datasets: {
+              acara: @json($dataAcara),
+              hadir: @json($dataHadir)
+          }
       };
   </script>
 @endpush
@@ -24,14 +26,14 @@
   <div class="page-header">
     <div class="page-title">
       <h1>Dashboard Operasional</h1>
-      <p class="subtitle">Ringkasan performa acara & kehadiran (Online/Offline)</p>
+      <p class="subtitle">Monitoring performa acara & presensi real-time</p>
     </div>
     <div class="date-badge">
         {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y') }}
     </div>
   </div>
 
-  {{-- SECTION CARDS (GLOBAL STATS) --}}
+  {{-- SECTION CARDS --}}
   <section class="cards">
     
     {{-- CARD 1: TOTAL PESERTA --}}
@@ -40,17 +42,25 @@
         <div class="card__icon icon-green">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
-        <span class="card__label">Total Peserta</span>
+        <span class="card__label">Database Peserta</span>
       </div>
       <div class="card__value">
         <span class="value" data-counter="{{ $totalPeserta }}">{{ number_format($totalPeserta) }}</span>
       </div>
       <div class="card__meta">
-        @if($trendPeserta > 0) <span class="trend up">+{{ round($trendPeserta) }}%</span> @endif dari bulan lalu
+        {{-- LABEL DIPERJELAS --}}
+        @if($trendPeserta > 0) 
+            <span class="trend up">▲ {{ round($trendPeserta) }}%</span> 
+        @elseif($trendPeserta < 0)
+            <span class="trend down">▼ {{ round($trendPeserta) }}%</span>
+        @else
+            <span class="trend neutral">-</span>
+        @endif
+        <span style="font-size: 11px;">Pertumbuhan vs bulan lalu</span>
       </div>
     </article>
 
-    {{-- CARD 2: TOTAL ACARA (DIPECAH) --}}
+    {{-- CARD 2: TOTAL ACARA --}}
     <article class="card">
       <div class="card__top">
         <div class="card__icon icon-purple">
@@ -61,7 +71,6 @@
       <div class="card__value">
         <span class="value" data-counter="{{ $totalAcara }}">{{ number_format($totalAcara) }}</span>
       </div>
-      {{-- BREAKDOWN ACARA (BARU) --}}
       <div class="card__breakdown">
           <div class="bd-item" title="Acara Online">
               <span class="dot online"></span> On: <strong>{{ $totalOnline }}</strong>
@@ -75,46 +84,44 @@
       </div>
     </article>
 
-    {{-- CARD 3: TOTAL KEHADIRAN (DIPECAH MASUK/ISTIRAHAT/PULANG) --}}
+    {{-- CARD 3: METODE PRESENSI (FIXED) --}}
     <article class="card">
       <div class="card__top">
         <div class="card__icon icon-blue">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            {{-- Icon QR Scan --}}
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
         </div>
-        <span class="card__label">Aktivitas Scan</span>
+        <span class="card__label">Metode Presensi</span>
       </div>
       <div class="card__value">
-        <span class="value" data-counter="{{ $hadirMasuk }}">{{ number_format($hadirMasuk) }}</span>
-        <span class="unit">Masuk</span>
+        {{-- Total Hadir Keseluruhan --}}
+        <span class="value" data-counter="{{ $totalHadir }}">{{ number_format($totalHadir) }}</span>
+        <span class="unit">Kehadiran</span>
       </div>
-      {{-- BREAKDOWN KEHADIRAN (BARU) --}}
+      {{-- BREAKDOWN ONLINE VS SCAN --}}
       <div class="card__breakdown">
-          <div class="bd-item">
-              <span class="dot masuk"></span> Masuk: <strong>{{ $hadirMasuk }}</strong>
+          <div class="bd-item" style="width: 50%">
+              <span class="dot masuk"></span> Web/Online: <strong>{{ $hadirViaOnline }}</strong>
           </div>
-          <div class="bd-item">
-              <span class="dot istirahat"></span> Ist: <strong>{{ $hadirIstirahat }}</strong>
-          </div>
-          <div class="bd-item">
-              <span class="dot pulang"></span> Plg: <strong>{{ $hadirPulang }}</strong>
+          <div class="bd-item" style="width: 50%">
+              <span class="dot offline"></span> Scan/Offline: <strong>{{ $hadirViaScan }}</strong>
           </div>
       </div>
     </article>
   </section>
 
-  {{-- CHART SECTION (BARU) --}}
+  {{-- CHART SECTION (IMPROVED) --}}
   <div class="panel mb-4">
       <div class="panel-header">
-          <h3>Statistik Kepadatan Acara Tahun {{ date('Y') }}</h3>
+          <h3>Statistik Kepadatan Acara vs Kehadiran ({{ date('Y') }})</h3>
       </div>
-      <div class="panel-body" style="padding: 20px; height: 300px;">
-          <canvas id="yearlyChart"></canvas>
+      <div class="panel-body" style="padding: 20px; height: 320px;">
+          <canvas id="comboChart"></canvas>
       </div>
   </div>
 
   <div class="dashboard-grid">
-    
-    {{-- KOLOM KIRI: TABEL STATISTIK PER ACARA (SPESIFIK) --}}
+    {{-- KOLOM KIRI: TABEL (SAMA SEPERTI SEBELUMNYA) --}}
     <div class="panel">
         <div class="panel-header">
             <h3>Statistik Kehadiran Per Acara</h3>
@@ -138,14 +145,12 @@
                             <span class="event-loc">{{ Str::limit($acara->lokasi, 20) }}</span>
                         </td>
                         <td>
-                            {{-- LOGIKA BADGE MODE ACARA --}}
                             @php $mode = $acara->mode_presensi ?? 'Offline'; @endphp
                             <span class="badge-mode {{ strtolower($mode) == 'online' ? 'bg-online' : (strtolower($mode) == 'kombinasi' ? 'bg-hybrid' : 'bg-offline') }}">
                                 {{ $mode }}
                             </span>
                         </td>
                         <td class="text-center">
-                            {{-- LOGIKA PESERTA DETAIL (Kombinasi) --}}
                             <div class="stats-detail">
                                 <span class="main-num">{{ $acara->total_hadir }}</span>
                                 <span class="sub-text">dari {{ $acara->total_target }}</span>
@@ -172,9 +177,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" style="text-align: center; padding: 20px; color: #94a3b8;">
-                            Belum ada data acara.
-                        </td>
+                        <td colspan="4" style="text-align: center; padding: 20px; color: #94a3b8;">Belum ada data acara.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -182,7 +185,7 @@
         </div>
     </div>
 
-    {{-- KOLOM KANAN: LOG AKTIVITAS (TETAP) --}}
+    {{-- KOLOM KANAN: LOG AKTIVITAS (SAMA SEPERTI SEBELUMNYA) --}}
     <div class="panel">
         <div class="panel-header">
             <h3>Aktivitas Terbaru</h3>
@@ -210,6 +213,5 @@
             @endforelse
         </div>
     </div>
-
   </div>
 @endsection

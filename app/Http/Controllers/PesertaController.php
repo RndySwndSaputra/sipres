@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf; 
 use SimpleSoftwareIO\QrCode\Facades\QrCode; 
 use Illuminate\Support\Facades\Mail;
-// --- TAMBAHAN LIBRARY UNTUK EXPORT ---
 use Illuminate\Support\Str; 
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -127,7 +126,6 @@ class PesertaController extends Controller
         ], 201);
     }
 
-    // --- [BAGIAN PENTING: UPDATE DENGAN SYNC] ---
     public function update(UpdatePesertaRequest $request, $id): JsonResponse
     {
         $peserta = Peserta::where('id', $id)->orWhere('nip', $id)->first();
@@ -136,7 +134,6 @@ class PesertaController extends Controller
              return response()->json(['success' => false, 'message' => 'Peserta tidak ditemukan.'], 404);
         }
 
-        // Cek Duplikasi NIP di Acara yang sama (kecuali diri sendiri)
         $cek = Peserta::where('id_acara', $peserta->id_acara)
                       ->where('nip', $request->nip)
                       ->where('id', '!=', $peserta->id)
@@ -146,22 +143,27 @@ class PesertaController extends Controller
             return response()->json(['success' => false, 'message' => 'NIP sudah dipakai peserta lain.'], 422);
         }
 
-        // 1. Update Tabel Peserta
-        $peserta->update($request->validated());
+        // --- DRAFT/RIWAYAT: Cek jika nama berubah ---
+        if ($peserta->nama !== $request->nama) {
+            DB::table('riwayat_perubahan_peserta')->insert([
+                'id_acara'   => $peserta->id_acara,
+                'id_peserta' => $peserta->id,
+                'nip'        => $peserta->nip,
+                'nama_lama'  => $peserta->nama,
+                'nama_baru'  => $request->nama,
+                'diubah_pada'=> now()
+            ]);
+        }
+        // --------------------------------------------
 
-        // 2. [PERBAIKAN UTAMA] Update Tabel Master Pegawai
+        $peserta->update($request->validated());
         $this->syncToMasterPegawai($request);
 
         return response()->json(['success' => true, 'message' => 'Data peserta & master pegawai berhasil diperbarui.']);
     }
 
-    /**
-     * Helper Function untuk Sinkronisasi ke Tabel Pegawai
-     * Agar tidak menulis kode berulang-ulang
-     */
     private function syncToMasterPegawai($request)
     {
-        // Cari pegawai berdasarkan NIP (Input Baru)
         $pegawai = Pegawai::where('nip', $request->nip)->first();
 
         $dataUpdate = [
@@ -173,11 +175,8 @@ class PesertaController extends Controller
         ];
 
         if ($pegawai) {
-            // Jika ada, UPDATE datanya (Nama, SKPD, dll mengikuti input Peserta)
             $pegawai->update($dataUpdate);
         } else {
-            // Opsional: Jika pegawai belum ada di master, BUAT BARU otomatis
-            // Hapus bagian 'else' ini jika Bapak tidak ingin otomatis nambah pegawai baru saat edit peserta
             Pegawai::create(array_merge(['nip' => $request->nip], $dataUpdate));
         }
     }
@@ -257,7 +256,6 @@ class PesertaController extends Controller
                 'ponsel' => $data['ponsel'] ?? null,
             ];
 
-            // 1. Update/Create di Tabel Peserta
             $existing = Peserta::where('id_acara', $acara->id_acara)->where('nip', $nip)->first();
 
             if ($existing) {
@@ -415,51 +413,14 @@ class PesertaController extends Controller
         ]);
     }
 
-    // --- FUNGSI EXPORT (YANG SEBELUMNYA HILANG) ---
-    public function export($id_acara)
+    // --- FUNGSI BARU: HISTORY (PENGGANTI EXPORT) ---
+    public function history($id_acara): JsonResponse
     {
-        // 1. Cari Acara
-        $acara = Acara::where('id_acara', $id_acara)->firstOrFail();
-
-        // 2. Ambil Data Peserta
-        $peserta = Peserta::where('id_acara', $id_acara)
-            ->orderBy('nama', 'asc')
+        $history = DB::table('riwayat_perubahan_peserta')
+            ->where('id_acara', $id_acara)
+            ->orderByDesc('diubah_pada')
             ->get();
 
-        // 3. Setup Nama File
-        $fileName = 'Peserta_' . Str::slug($acara->nama_acara) . '_' . date('Y-m-d') . '.csv';
-
-        // 4. Buat Response Stream CSV
-        $headers = [
-            "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=$fileName",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
-        ];
-
-        $callback = function() use($peserta) {
-            $file = fopen('php://output', 'w');
-
-            // Header Kolom CSV
-            fputcsv($file, ['No', 'NIP', 'Nama', 'SKPD', 'Lokasi Unit Kerja', 'Email', 'Ponsel']);
-
-            // Isi Data
-            foreach ($peserta as $key => $row) {
-                fputcsv($file, [
-                    $key + 1,
-                    $row->nip,
-                    $row->nama,
-                    $row->skpd,
-                    $row->lokasi_unit_kerja,
-                    $row->email,
-                    $row->ponsel
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return response()->json(['success' => true, 'data' => $history]);
     }
 }

@@ -10,7 +10,7 @@
   const btnAdd = document.getElementById('btnAddPeserta');
   const btnPrint = document.getElementById('btnPrintQr'); 
   const btnSendQrMass = document.getElementById('btnSendQrMass');
-  const btnExport = document.getElementById('btnExport'); // SELEKTOR TOMBOL EXPORT
+  const btnDraft = document.getElementById('btnDraftHistory'); // TOMBOL DRAFT
   
   // Layout Elements
   const emptyState = document.getElementById('emptyState');
@@ -29,6 +29,10 @@
   const inputId = document.getElementById('pesertaId');
   const inputNama = document.getElementById('psNama');
   const inputNip = document.getElementById('psNip');
+
+  // Draft/History Modal Elements
+  const draftModal = document.getElementById('draftHistoryModal');
+  const timelineContainer = document.getElementById('historyTimeline');
   
   // Import
   const importModal = document.getElementById('importModal');
@@ -76,6 +80,16 @@
     const d = new Date(dateStr);
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
     return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  };
+
+  const formatDateTime = (str) => {
+      if(!str) return '-';
+      const d = new Date(str);
+      const day = d.getDate();
+      const month = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][d.getMonth()];
+      const h = String(d.getHours()).padStart(2, '0');
+      const m = String(d.getMinutes()).padStart(2, '0');
+      return `${day} ${month} • ${h}:${m}`;
   };
 
   // --- TOAST ---
@@ -325,7 +339,56 @@
   if(btnSendViaEmail) btnSendViaEmail.addEventListener('click', () => sendQrSingle('email'));
 
   // =========================================================================
-  // 7. PRINT MODAL (FILTER & SELECT ALL) - WITH TYPING
+  // 7. DRAFT / RIWAYAT LOGIC (BARU)
+  // =========================================================================
+  if(btnDraft) {
+      btnDraft.addEventListener('click', () => {
+          openModalGeneric(draftModal);
+          loadDraftHistory();
+      });
+  }
+
+  const loadDraftHistory = () => {
+      timelineContainer.innerHTML = '<div style="text-align:center; padding:20px;">Memuat data...</div>';
+      
+      fetch(`/admin/peserta/history/${eventId}`, { headers: {'Accept': 'application/json'} })
+        .then(res => res.json())
+        .then(json => {
+            if(!json.success || json.data.length === 0) {
+                timelineContainer.innerHTML = `
+                    <div style="text-align:center; padding:40px; color:#64748b;">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="color:#cbd5e1; margin-bottom:10px;"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+                        <p>Belum ada riwayat perubahan nama.</p>
+                    </div>`;
+                return;
+            }
+            
+            // Render Timeline Vertikal
+            timelineContainer.innerHTML = json.data.map(item => `
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">${formatDateTime(item.diubah_pada)}</div>
+                        <div class="timeline-body">
+                            Nama peserta dengan NIP <strong>${item.nip}</strong> telah diganti.
+                            <div class="timeline-change">
+                                <span class="old">${item.nama_lama}</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                <span class="new">${item.nama_baru}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        })
+        .catch(err => {
+            console.error(err);
+            timelineContainer.innerHTML = '<div style="color:red; text-align:center;">Gagal memuat riwayat.</div>';
+        });
+  };
+
+  // =========================================================================
+  // 8. PRINT MODAL (FILTER & SELECT ALL)
   // =========================================================================
   const renderPrintListFiltered = () => {
       const keyword = filterPrintSearch.value.toLowerCase();
@@ -334,15 +397,10 @@
 
       currentFilteredPrintList = allPrintParticipants.filter(p => {
           const matchName = (p.nama || '').toLowerCase().includes(keyword) || (p.nip || '').includes(keyword);
-          
           const pSkpd = (p.skpd || '').toLowerCase();
-          // GUNAKAN INCLUDES AGAR BISA KETIK SEBAGIAN
           const matchSkpd = skpdVal === '' || pSkpd.includes(skpdVal);
-
           const pLokasi = (p.lokasi_unit_kerja || '').toLowerCase(); 
-          // GUNAKAN INCLUDES AGAR BISA KETIK SEBAGIAN
           const matchLok = lokVal === '' || pLokasi.includes(lokVal);
-          
           return matchName && matchSkpd && matchLok;
       });
 
@@ -398,7 +456,6 @@
       filterPrintSkpd.value = ''; 
       filterPrintLokasi.value = ''; 
       
-      // Kosongkan Datalist
       const listSkpd = document.getElementById('listPrintSkpd');
       const listLokasi = document.getElementById('listPrintLokasi');
       if(listSkpd) listSkpd.innerHTML = '';
@@ -429,7 +486,6 @@
       });
   });
 
-  // GUNAKAN EVENT 'INPUT' UNTUK PENCARIAN REAL-TIME
   if(filterPrintSearch) filterPrintSearch.addEventListener('input', renderPrintListFiltered);
   if(filterPrintSkpd) filterPrintSkpd.addEventListener('input', renderPrintListFiltered);
   if(filterPrintLokasi) filterPrintLokasi.addEventListener('input', renderPrintListFiltered);
@@ -452,7 +508,7 @@
   });
 
   // =========================================================================
-  // 8. BULK EMPLOYEE SELECT MODAL (FIXED & SCOPED) - WITH TYPING
+  // 9. BULK EMPLOYEE SELECT MODAL
   // =========================================================================
   const loadEmployees = () => {
       listEmpContainer.innerHTML = '<div style="padding:40px;text-align:center;color:#64748b;">Memuat data pegawai...</div>';
@@ -463,7 +519,6 @@
       filterEmpSkpd.value = ''; 
       filterEmpLokasi.value = ''; 
       
-      // Kosongkan Datalist
       const listSkpd = document.getElementById('listEmpSkpd');
       const listLokasi = document.getElementById('listEmpLokasi');
       if(listSkpd) listSkpd.innerHTML = '';
@@ -498,15 +553,10 @@
       
       currentVisibleEmployees = availableEmployees.filter(e => {
           const matchName = (e.nama||'').toLowerCase().includes(term) || (e.nip||'').includes(term);
-          
           const eSkpd = (e.skpd || '').toLowerCase();
-          // GUNAKAN INCLUDES AGAR BISA KETIK SEBAGIAN
           const matchSkpd = skpd === '' || eSkpd.includes(skpd);
-          
           const eLokasi = (e.lokasi_unit_kerja||'').toLowerCase();
-          // GUNAKAN INCLUDES AGAR BISA KETIK SEBAGIAN
           const matchLokasi = lokasi === '' || eLokasi.includes(lokasi);
-
           return matchName && matchSkpd && matchLokasi;
       });
 
@@ -608,7 +658,7 @@
   }
 
   // =========================================================================
-  // 9. IMPORT LOGIC
+  // 10. IMPORT LOGIC
   // =========================================================================
   if(btnImport) btnImport.addEventListener('click', () => openModalGeneric(importModal));
   if(importForm) {
@@ -632,16 +682,6 @@
           })
           .finally(() => importLoading.hidden = true);
       });
-  }
-
-  // =========================================================================
-  // 10. EXPORT LOGIC (DITAMBAHKAN)
-  // =========================================================================
-  if(btnExport) {
-    btnExport.addEventListener('click', () => {
-        // Mengarahkan ke route export (pastikan route ini ada di web.php)
-        window.location.href = `/admin/peserta/export/${eventId}`;
-    });
   }
 
   // =========================================================================

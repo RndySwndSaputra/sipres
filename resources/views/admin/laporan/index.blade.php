@@ -3,32 +3,34 @@
 @section('title', 'Laporan')
 
 @push('styles')
-  <link rel="stylesheet" href="{{ asset('css/admin/laporan.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/admin/laporan.css') }}?v={{ time() }}">
 @endpush
 
 @push('scripts')
-  <script src="{{ asset('js/admin/laporan.js') }}" defer></script>
+  <script src="{{ asset('js/admin/laporan.js') }}?v={{ time() }}" defer></script>
 @endpush
 
 @section('content')
   <div class="page-header">
     <div class="page-title">
       <h1>Laporan</h1>
-      <p class="subtitle">Pilih acara untuk melihat rekapitulasi laporan</p>
+      <p class="subtitle">Rekapitulasi dan detail presensi per acara</p>
     </div>
   </div>
 
   <div class="laporan-toolbar">
-    {{-- Search Section --}}
-    <div class="search">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      <input id="laporanSearch" type="text" placeholder="Cari acara..." autocomplete="off">
+    {{-- Search --}}
+    <div class="search-wrapper">
+        <div class="search">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="M20 20l-3.5-3.5" stroke-linecap="round"/>
+        </svg>
+        <input id="laporanSearch" type="text" placeholder="Cari nama acara atau lokasi..." autocomplete="off">
+        </div>
     </div>
 
-    {{-- Filter & Print Section --}}
+    {{-- Filter Group --}}
     <div class="filter-group">
         <select id="filterJenis" class="form-select">
             <option value="">Semua Jenis</option>
@@ -53,60 +55,75 @@
             <option value="12">Desember</option>
         </select>
         
-        <input type="number" id="filterTahun" class="form-select" placeholder="Tahun" min="2000" max="2100" style="width: 90px;">
+        <input type="number" id="filterTahun" class="form-select input-tahun" placeholder="Tahun" min="2000" max="2100">
 
-        <button id="btnPrint" class="btn-print" title="Cetak Rekapitulasi">
+        <button id="btnPrint" class="btn-print" title="Cetak Rekap">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="6 9 6 2 18 2 18 9"></polyline>
                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
                 <rect x="6" y="14" width="12" height="8"></rect>
             </svg>
-            <span>Cetak Rekap</span>
+            <span>Cetak</span>
         </button>
     </div>
   </div>
 
   <div class="content-area">
     
-    {{-- 1. TAMPILAN GRID (Untuk Web) --}}
-    <div class="acara-grid" id="acaraGrid"></div>
-    
-    {{-- 2. TAMPILAN TABEL (Khusus Print - Default Hidden) --}}
-    <div id="printTableContainer" class="print-only">
-        <div class="print-header">
-            <h2>REKAPITULASI DATA ACARA</h2>
-            <p>BKPSDM Kabupaten Karawang</p>
-            <p class="print-date">Dicetak pada: <span id="printDate"></span></p>
-            <hr style="border: 1px solid #000; margin: 10px 0;">
-        </div>
-        <table class="table-rekap">
+    {{-- TABLE WRAPPER --}}
+    <div class="table-wrapper" id="tableContainer">
+        <table class="table">
             <thead>
                 <tr>
-                    <th style="width: 5%">No</th>
-                    <th style="width: 25%">Nama Acara</th> {{-- Dikurangi sedikit --}}
-                    <th style="width: 10%">Jenis</th>      {{-- Dikurangi --}}
-                    <th style="width: 20%">Waktu & Tanggal</th>
-                    <th style="width: 30%">Lokasi & Link</th> {{-- DIPERLEBAR untuk Link --}}
-                    <th style="width: 10%">Peserta</th>
+                    <th style="width: 5%;" class="text-center">No</th>
+                    <th style="width: 35%;">Nama Acara & Status</th> <th style="width: 20%;">Waktu</th>
+                    <th style="width: 25%;">Jenis & Lokasi</th>
+                    <th style="width: 15%;" class="text-center">Peserta</th> <th style="width: 10%;" class="text-center">Aksi</th>
                 </tr>
             </thead>
-            <tbody id="printTableBody">
-                </tbody>
+            <tbody id="laporanTableBody">
+                {{-- JS Render --}}
+            </tbody>
         </table>
     </div>
 
-    {{-- Empty State --}}
+    {{-- EMPTY STATE --}}
     <div class="empty-state" id="emptyState" hidden>
-      <svg viewBox="0 0 24 24" width="48" height="48" fill="none" aria-hidden="true">
-        <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
       </svg>
       <p class="empty-message">Tidak ada acara ditemukan</p>
+      <p class="empty-hint">Coba ubah filter atau kata kunci pencarian</p>
     </div>
 
-    {{-- Loading --}}
+    {{-- LOADING --}}
     <div id="laporanLoading" class="loading-overlay" hidden>
       <div class="spinner"></div>
+    </div>
+
+    {{-- PRINT AREA --}}
+    <div id="printArea" class="print-only">
+        <div class="print-header">
+            <h2>REKAPITULASI LAPORAN</h2>
+            <p>BKPSDM Kabupaten Karawang</p>
+            <p id="printFilterInfo"></p>
+            <hr>
+        </div>
+        <table class="table-print">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama Acara</th>
+                    <th>Waktu</th>
+                    <th>Lokasi / Link</th>
+                    <th>Peserta</th>
+                </tr>
+            </thead>
+            <tbody id="printTableBody"></tbody>
+        </table>
     </div>
   </div>
 @endsection

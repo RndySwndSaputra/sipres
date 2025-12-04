@@ -46,13 +46,12 @@
         </svg>
         <span>Import</span>
       </button>
-      <button class="btn btn-outline" id="btnExport">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      
+      <button class="btn btn-outline" id="btnDraftHistory">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
         </svg>
-        <span>Export Data</span>
+        <span>Draft / Riwayat</span>
       </button>
 
       <button class="btn btn-outline" id="btnPrintQr" title="Cetak ID Card" style="display: none;">
@@ -127,7 +126,7 @@
         </tr>
       </thead>
       <tbody>
-        </tbody>
+      </tbody>
     </table>
   </div>
 
@@ -233,7 +232,7 @@
       </div>
 
       <div id="employeeListContainer" class="employee-list-scroll" style="flex: 1; overflow-y: auto; background: #fff;">
-          </div>
+      </div>
 
       <footer class="modal__footer" style="border-top: 1px solid #e2e8f0; padding: 16px;">
           <button type="button" class="btn" data-dismiss="modal">Batal</button>
@@ -343,7 +342,7 @@
             </div>
             
             <div id="printParticipantList" style="flex: 1; overflow-y: auto;">
-                </div>
+            </div>
         </div>
         
         <footer class="modal__footer" style="padding: 16px 20px; border-top: 1px solid #e2e8f0; justify-content: space-between; align-items: center;">
@@ -353,6 +352,31 @@
                 <button type="button" class="btn btn-primary" id="btnPrintSelected">Cetak Sekarang</button>
             </div>
         </footer>
+    </div>
+  </div>
+
+  <div class="modal" id="draftHistoryModal" aria-hidden="true" role="dialog">
+    <div class="modal__backdrop" data-dismiss="modal"></div>
+    <div class="modal__dialog" role="document" style="max-width: 500px; height: 80vh; display: flex; flex-direction: column;">
+      <header class="modal__header">
+        <div>
+            <h2 style="margin-bottom: 4px;">Riwayat / Draft</h2>
+            <p style="font-size: 13px; color: #64748b; margin: 0;">Riwayat perubahan nama peserta di acara ini</p>
+        </div>
+        <button class="modal__close" data-dismiss="modal">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6l-12 12"/></svg>
+        </button>
+      </header>
+      
+      <div class="modal__body" style="background: #f8fafc; flex: 1; overflow-y: auto; padding: 20px;">
+        <div id="historyTimeline" class="timeline">
+            <div style="text-align:center; padding: 20px; color: #94a3b8;">Memuat riwayat...</div>
+        </div>
+      </div>
+
+      <footer class="modal__footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Tutup</button>
+      </footer>
     </div>
   </div>
 
