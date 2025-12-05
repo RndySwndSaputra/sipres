@@ -1,53 +1,59 @@
 <div align="center">
-    <img src="public/assets/icon/favicon.png" alt="Logo BKPSDM Karawang" width="100" height="auto" style="margin-right: 20px;"/>
-    <img src="public/assets/image/logo-besar.png" alt="Logo SIPRES" width="150" height="auto" style="margin-left: 20px;"/>
+    <img src="public/assets/icon/favicon.png" alt="Logo BKPSDM Karawang" height="85" />
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <img src="public/assets/image/logo-besar.png" alt="Logo SIPRES" height="85" />
 </div>
 
-<h1 align="center">SIPRES</h1>
-<p align="center">
-    <strong>Sistem Presensi Acara Berbasis QR Code</strong><br>
-    <em>Dikembangkan untuk BKPSDM Kabupaten Karawang</em>
-</p>
+<div align="center">
+    <h1 style="margin-top: 10px;">SIPRES</h1>
+    <p>
+        <strong>Sistem Presensi Acara Berbasis QR Code</strong><br>
+        Dikembangkan untuk <i>BKPSDM Kabupaten Karawang</i>
+    </p>
 
-<p align="center">
-    <a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel"></a>
-    <a href="https://getbootstrap.com"><img src="https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap"></a>
-    <a href="https://www.mysql.com/"><img src="https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL"></a>
-</p>
+  <a href="https://laravel.com">
+    <img src="https://img.shields.io/badge/Laravel-FF2D20?style=flat-square&logo=laravel&logoColor=white" alt="Laravel">
+  </a>
+  <a href="https://getbootstrap.com">
+    <img src="https://img.shields.io/badge/Bootstrap-563D7C?style=flat-square&logo=bootstrap&logoColor=white" alt="Bootstrap">
+  </a>
+  <a href="https://www.mysql.com/">
+    <img src="https://img.shields.io/badge/MySQL-00000F?style=flat-square&logo=mysql&logoColor=white" alt="MySQL">
+  </a>
+</div>
 
----
+<br>
 
 ## 📖 Tentang SIPRES
 
-**SIPRES (Sistem Presensi)** adalah sebuah inovasi digital yang dirancang untuk mempermudah pengelolaan kehadiran dalam kegiatan, rapat, atau acara kedinasan di lingkungan **BKPSDM Kabupaten Karawang**.
+**SIPRES** adalah sistem presensi digital yang mentransformasi metode absensi konvensional menjadi digital melalui pemindaian **QR Code**. Sistem ini dibangun khusus untuk lingkungan **BKPSDM Kabupaten Karawang** guna meningkatkan efisiensi, akurasi, dan transparansi data kehadiran dalam setiap kegiatan kedinasan.
 
-Sistem ini menggantikan metode absensi konvensional (tanda tangan basah) dengan teknologi pemindaian **QR Code/Barcode**. Dengan SIPRES, proses registrasi kehadiran menjadi lebih cepat, akurat, dan transparan. Data kehadiran terekam secara *real-time*, meminimalkan antrean, serta memudahkan panitia dalam mencetak laporan dan sertifikat.
+## 🚀 Fitur Utama
 
-## 🚀 Fitur Unggulan
+| Fitur | Deskripsi |
+| :--- | :--- |
+| 📱 **QR Code Attendance** | Absensi instan (scan-and-go) menggunakan kode QR unik. |
+| 📅 **Event Management** | Pengelolaan jadwal acara, lokasi, dan sesi istirahat. |
+| 👥 **Integrasi Pegawai** | Sinkronisasi otomatis dengan master data pegawai (NIP/Nama). |
+| 📨 **Broadcast QR** | Kirim undangan & QR Code massal via Email atau WhatsApp. |
+| 🪪 **ID Card Generator** | Cetak ID Card peserta lengkap dengan QR Code otomatis (PDF). |
+| 📊 **Real-time Stats** | Dashboard statistik kehadiran per SKPD secara langsung. |
+| 🔄 **Riwayat Data** | Log aktivitas perubahan data peserta (Audit Trail). |
 
-SIPRES dilengkapi dengan berbagai fitur untuk memudahkan administrator dan peserta:
+## 🛠️ Teknologi
 
--   **QR Code Attendance:** Absensi instan hanya dengan memindai kode QR unik milik peserta.
--   **Manajemen Acara & Peserta:** Kelola jadwal acara, lokasi, dan daftar peserta dengan mudah.
--   **Integrasi Data Pegawai:** Sinkronisasi otomatis data peserta dengan master data pegawai (NIP, Nama, SKPD).
--   **Kirim QR Massal:** Fitur pengiriman QR Code kehadiran melalui Email atau WhatsApp.
--   **Cetak ID Card Otomatis:** Pembuatan ID Card peserta yang dilengkapi QR Code siap cetak (PDF).
--   **Riwayat & Draft:** Melacak perubahan data peserta (seperti perbaikan nama) dengan log riwayat yang detail.
--   **Laporan Real-time:** Dashboard statistik kehadiran berdasarkan SKPD dan jumlah total peserta.
--   **Import Data CSV:** Kemudahan input data peserta dalam jumlah banyak sekaligus.
+Sistem ini dibangun menggunakan teknologi yang handal dan aman:
 
-## 🛠️ Teknologi yang Digunakan
+* **Core:** Laravel Framework
+* **Database:** MySQL
+* **Frontend:** Bootstrap 5, Vanilla JS (ES6), Blade Templates
+* **Modules:**
+    * `barryvdh/laravel-dompdf` (Export PDF)
+    * `simplesoftwareio/simple-qrcode` (QR Generator)
 
--   **Backend:** Laravel Framework
--   **Database:** MySQL
--   **Frontend:** Blade Templates, JavaScript (Vanilla ES6), Bootstrap
--   **Tools Tambahan:**
-    -   `barryvdh/laravel-dompdf` (Cetak PDF)
-    -   `simplesoftwareio/simple-qrcode` (Generate QR)
+## 📦 Instalasi
 
-## 📦 Instalasi & Penggunaan
-
-Ikuti langkah berikut untuk menjalankan proyek ini di mesin lokal Anda:
+Pastikan server lokal Anda telah memenuhi syarat kebutuhan Laravel.
 
 1.  **Clone Repositori**
     ```bash
@@ -62,10 +68,10 @@ Ikuti langkah berikut untuk menjalankan proyek ini di mesin lokal Anda:
     ```
 
 3.  **Konfigurasi Environment**
-    Salin file `.env.example` menjadi `.env` dan sesuaikan pengaturan database Anda.
     ```bash
     cp .env.example .env
     php artisan key:generate
+    # Jangan lupa sesuaikan konfigurasi DB di file .env
     ```
 
 4.  **Migrasi Database**
@@ -77,18 +83,13 @@ Ikuti langkah berikut untuk menjalankan proyek ini di mesin lokal Anda:
     ```bash
     php artisan serve
     ```
-    Akses aplikasi melalui `http://localhost:8000`.
 
-## 🔒 Keamanan
+## 🔒 Keamanan & Lisensi
 
-Jika Anda menemukan celah keamanan dalam aplikasi ini, harap segera laporkan kepada pengembang melalui email atau issue tracker di repositori ini.
-
-## 📄 Lisensi
-
-SIPRES adalah perangkat lunak *open-source* yang dilisensikan di bawah [MIT license](https://opensource.org/licenses/MIT).
+Jika menemukan celah keamanan, harap laporkan segera ke pengembang. Aplikasi ini dilisensikan di bawah **[MIT License](https://opensource.org/licenses/MIT)**.
 
 ---
 
-<p align="center">
-    &copy; 2025 BKPSDM Kabupaten Karawang. Created by <strong>Rendy Suwandi</strong>.
-</p>
+<div align="center">
+    <small>&copy; 2025 BKPSDM Kabupaten Karawang. Created by <strong>SIPRES</strong>.</small>
+</div>
