@@ -1,6 +1,6 @@
 <div align="center">
     <img src="public/assets/icon/favicon.png" alt="Logo BKPSDM Karawang" width="100" height="auto" style="margin-right: 20px;"/>
-    <img src="public/assets/image/sipres.webp" alt="Logo SIPRES" width="150" height="auto" style="margin-left: 20px;"/>
+    <img src="public/assets/image/logo-besar.png" alt="Logo SIPRES" width="150" height="auto" style="margin-left: 20px;"/>
 </div>
 
 <h1 align="center">SIPRES</h1>
