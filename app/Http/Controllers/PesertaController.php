@@ -9,7 +9,7 @@ use App\Models\Peserta;
 use App\Models\Pegawai;
 use App\Models\Presensi;
 use App\Http\Requests\Peserta\StorePesertaRequest;
-use App\Http\Requests\Peserta\UpdatePesertaRequest;
+// use App\Http\Requests\Peserta\UpdatePesertaRequest; // Disable ini untuk fungsi update agar validasi manual di controller berjalan
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf; 
 use SimpleSoftwareIO\QrCode\Facades\QrCode; 
@@ -126,17 +126,29 @@ class PesertaController extends Controller
         ], 201);
     }
 
-    public function update(UpdatePesertaRequest $request, $id): JsonResponse
+    // PERBAIKAN UTAMA DI SINI: Menggunakan Request biasa, bukan UpdatePesertaRequest
+    public function update(Request $request, $id): JsonResponse
     {
+        // Validasi Manual
+        $request->validate([
+            'nama' => 'required|string',
+            'nip' => 'required|string',
+            'skpd' => 'required|string',
+            'lokasi_unit_kerja' => 'required|string',
+            'email' => 'nullable|email',
+            'ponsel' => 'nullable|string',
+        ]);
+
         $peserta = Peserta::where('id', $id)->orWhere('nip', $id)->first();
 
         if (!$peserta) {
              return response()->json(['success' => false, 'message' => 'Peserta tidak ditemukan.'], 404);
         }
 
+        // Cek NIP duplikat TAPI kecualikan diri sendiri (Fix error: nip has already been taken)
         $cek = Peserta::where('id_acara', $peserta->id_acara)
                       ->where('nip', $request->nip)
-                      ->where('id', '!=', $peserta->id)
+                      ->where('id', '!=', $peserta->id) // Penting: Abaikan ID sendiri
                       ->exists();
 
         if ($cek) {
@@ -156,7 +168,7 @@ class PesertaController extends Controller
         }
         // --------------------------------------------
 
-        $peserta->update($request->validated());
+        $peserta->update($request->all()); // Menggunakan all() atau only() karena validasi sudah dilakukan manual
         $this->syncToMasterPegawai($request);
 
         return response()->json(['success' => true, 'message' => 'Data peserta & master pegawai berhasil diperbarui.']);

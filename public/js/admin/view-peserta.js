@@ -417,12 +417,12 @@
               <input type="checkbox" class="print-cb" value="${p.nip}">
               <span class="custom-check"></span>
               <div class="emp-info">
-                   <div class="emp-name">${p.nama}</div>
-                   <div class="emp-detail">
+                    <div class="emp-name">${p.nama}</div>
+                    <div class="emp-detail">
                       ${p.nip} 
                       ${p.skpd ? `• <span style="color:#2563eb;">${p.skpd}</span>` : ''} 
                       ${p.lokasi_unit_kerja ? `• ${p.lokasi_unit_kerja}` : ''}
-                   </div>
+                    </div>
                </div>
            </label>
         </div>
@@ -542,7 +542,7 @@
           }
       })
       .catch(() => {
-           listEmpContainer.innerHTML = '<div style="padding:20px;text-align:center;color:red;">Gagal menghubungi server.</div>';
+            listEmpContainer.innerHTML = '<div style="padding:20px;text-align:center;color:red;">Gagal menghubungi server.</div>';
       });
   };
 
