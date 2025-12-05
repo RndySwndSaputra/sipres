@@ -1,7 +1,7 @@
 <div align="center">
-    <img src="public/assets/icon/favicon.png" alt="Logo BKPSDM Karawang" height="55" />
+    <img src="public/assets/icon/favicon.png" alt="Logo BKPSDM Karawang" height="85" />
     &nbsp;&nbsp;&nbsp;&nbsp;
-    <img src="public/assets/image/sipres.webp" alt="Logo SIPRES" height="85" />
+    <img src="public/assets/image/sipres.webp" alt="Logo SIPRES" height="55" />
 </div>
 
 <div align="center">
