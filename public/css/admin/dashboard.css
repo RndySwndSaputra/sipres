@@ -270,7 +270,59 @@
   margin-top: 2px;
 }
 
-/* Badges */
+/* --- BADGES & LABELS (PERBAIKAN: TARGET & HADIR) --- */
+.text-center {
+  text-align: center !important;
+}
+
+.num-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  min-width: 40px;
+}
+
+/* Target: Abu-abu Netral */
+.badge-target {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+/* Hadir: Hijau (Jika ada) */
+.badge-hadir {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+/* Hadir: Merah Pudar (Jika 0/Kosong) */
+.badge-empty {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px dashed #fecaca;
+}
+
+/* Breakdown kecil di bawah angka */
+.mini-breakdown {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 10px;
+  color: #64748b;
+}
+
+.mini-breakdown span {
+  background: #fff;
+  padding: 2px 4px;
+  border-radius: 4px;
+  border: 1px solid #f1f5f9;
+}
+
+/* Badges Mode */
 .badge-mode {
   padding: 4px 8px;
   border-radius: 6px;
@@ -392,32 +444,7 @@
   }
 }
 
-/* Stats Detail */
-.stats-detail {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.main-num {
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.sub-text {
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.split-stats {
-  display: flex;
-  gap: 8px;
-  font-size: 10px;
-  margin-top: 4px;
-  background: #f8fafc;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
+/* Stats Detail - DELETED (Sudah diganti dengan style baru di atas) */
 
 /* Progress Bar */
 .progress-container {

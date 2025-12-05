@@ -9,7 +9,7 @@ use App\Models\Peserta;
 use App\Models\Pegawai;
 use App\Models\Presensi;
 use App\Http\Requests\Peserta\StorePesertaRequest;
-// use App\Http\Requests\Peserta\UpdatePesertaRequest; // Disable ini untuk fungsi update agar validasi manual di controller berjalan
+// use App\Http\Requests\Peserta\UpdatePesertaRequest; 
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf; 
 use SimpleSoftwareIO\QrCode\Facades\QrCode; 
@@ -86,6 +86,7 @@ class PesertaController extends Controller
 
     public function store(StorePesertaRequest $request): JsonResponse
     {
+        // 1. Cek Apakah Peserta Sudah Ada
         $exists = Peserta::where('id_acara', $request->id_acara)
                          ->where('nip', $request->nip)
                          ->exists();
@@ -97,6 +98,19 @@ class PesertaController extends Controller
             ], 422);
         }
 
+        // --- [PERBAIKAN: CEK KUOTA PENUH] ---
+        $acara = Acara::findOrFail($request->id_acara);
+        $totalPesertaSaatIni = Peserta::where('id_acara', $request->id_acara)->count();
+
+        // Jika maximal_peserta diisi (lebih dari 0) DAN jumlah saat ini sudah >= batas
+        if ($acara->maximal_peserta > 0 && $totalPesertaSaatIni >= $acara->maximal_peserta) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menambahkan peserta. Kuota acara penuh (' . $acara->maximal_peserta . ' peserta).'
+            ], 422);
+        }
+        // ------------------------------------
+
         $peserta = Peserta::create($request->validated());
 
         // --- [LOGIKA SINGKRONISASI 1: UPDATE/CREATE PEGAWAI SAAT TAMBAH PESERTA] ---
@@ -104,7 +118,6 @@ class PesertaController extends Controller
         // -------------------------------------------------------------------------
 
         if (! Presensi::where('id_acara', $peserta->id_acara)->where('nip', $peserta->nip)->exists()) {
-            $acara = Acara::where('id_acara', $peserta->id_acara)->first();
             
             $modeDefault = (string) optional($acara)->mode_presensi ?: 'Offline';
             if ($modeDefault === 'Kombinasi') {
@@ -126,7 +139,6 @@ class PesertaController extends Controller
         ], 201);
     }
 
-    // PERBAIKAN UTAMA DI SINI: Menggunakan Request biasa, bukan UpdatePesertaRequest
     public function update(Request $request, $id): JsonResponse
     {
         // Validasi Manual
@@ -145,10 +157,10 @@ class PesertaController extends Controller
              return response()->json(['success' => false, 'message' => 'Peserta tidak ditemukan.'], 404);
         }
 
-        // Cek NIP duplikat TAPI kecualikan diri sendiri (Fix error: nip has already been taken)
+        // Cek NIP duplikat TAPI kecualikan diri sendiri
         $cek = Peserta::where('id_acara', $peserta->id_acara)
                       ->where('nip', $request->nip)
-                      ->where('id', '!=', $peserta->id) // Penting: Abaikan ID sendiri
+                      ->where('id', '!=', $peserta->id) 
                       ->exists();
 
         if ($cek) {
@@ -168,7 +180,7 @@ class PesertaController extends Controller
         }
         // --------------------------------------------
 
-        $peserta->update($request->all()); // Menggunakan all() atau only() karena validasi sudah dilakukan manual
+        $peserta->update($request->all()); 
         $this->syncToMasterPegawai($request);
 
         return response()->json(['success' => true, 'message' => 'Data peserta & master pegawai berhasil diperbarui.']);
@@ -243,6 +255,11 @@ class PesertaController extends Controller
         }, $header);
 
         $inserted = 0; $updated = 0; $skipped = 0;
+        
+        // --- [PERBAIKAN: INISIALISASI PENGHITUNG KUOTA] ---
+        $currentTotal = Peserta::where('id_acara', $acara->id_acara)->count();
+        $quotaFull = false;
+        // -------------------------------------------------
 
         while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
             if (count($row) < 2) continue;
@@ -274,6 +291,14 @@ class PesertaController extends Controller
                 $existing->update($payload);
                 $updated++;
             } else {
+                // --- [PERBAIKAN: CEK KUOTA SEBELUM INSERT BARU] ---
+                if ($acara->maximal_peserta > 0 && ($currentTotal + $inserted) >= $acara->maximal_peserta) {
+                    $quotaFull = true;
+                    // Jika kuota penuh, stop import (break) atau skip (continue). Di sini kita break.
+                    break; 
+                }
+                // -------------------------------------------------
+
                 Peserta::create(array_merge([
                     'id_acara' => $acara->id_acara,
                     'nip' => $nip
@@ -295,16 +320,20 @@ class PesertaController extends Controller
             if ($pegawai) {
                 $pegawai->update($payload);
             } else {
-                // Opsional: Buat Pegawai baru jika belum ada di master
                 Pegawai::create(array_merge(['nip' => $nip], $payload));
             }
         }
 
         fclose($handle);
 
+        $message = 'Import selesai.';
+        if ($quotaFull) {
+            $message .= ' (Proses dihentikan lebih awal karena kuota peserta penuh).';
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Import selesai.',
+            'message' => $message,
             'summary' => ['inserted' => $inserted, 'updated' => $updated, 'skipped' => $skipped],
         ]);
     }
@@ -379,9 +408,14 @@ class PesertaController extends Controller
         $nips = $request->nips;
         $inserted = 0;
         $skipped = 0;
+        $quotaReached = false;
 
         $acara = Acara::where('id_acara', $idAcara)->first();
         $modeDefault = (string) ($acara->mode_presensi === 'Kombinasi' ? 'Offline' : ($acara->mode_presensi ?: 'Offline'));
+
+        // --- [PERBAIKAN: Hitung Jumlah Saat Ini] ---
+        $currentTotal = Peserta::where('id_acara', $idAcara)->count();
+        // -------------------------------------------
 
         foreach ($nips as $nip) {
             $exists = Peserta::where('id_acara', $idAcara)->where('nip', $nip)->exists();
@@ -390,6 +424,13 @@ class PesertaController extends Controller
                 $skipped++;
                 continue;
             }
+
+            // --- [PERBAIKAN: Cek Kuota di dalam Loop] ---
+            if ($acara->maximal_peserta > 0 && ($currentTotal + $inserted) >= $acara->maximal_peserta) {
+                $quotaReached = true;
+                break; // Hentikan loop jika penuh
+            }
+            // --------------------------------------------
 
             // Ambil data dari Master Pegawai
             $pegawai = Pegawai::where('nip', $nip)->first();
@@ -419,13 +460,16 @@ class PesertaController extends Controller
             }
         }
 
+        $msg = "Berhasil menambahkan $inserted peserta.";
+        if ($skipped > 0) $msg .= " ($skipped dilewati/sudah ada).";
+        if ($quotaReached) $msg .= " Peringatan: Beberapa peserta tidak ditambahkan karena kuota penuh.";
+
         return response()->json([
             'success' => true,
-            'message' => "Berhasil menambahkan $inserted peserta. ($skipped dilewati/sudah ada)."
+            'message' => $msg
         ]);
     }
 
-    // --- FUNGSI BARU: HISTORY (PENGGANTI EXPORT) ---
     public function history($id_acara): JsonResponse
     {
         $history = DB::table('riwayat_perubahan_peserta')

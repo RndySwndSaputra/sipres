@@ -48,7 +48,6 @@
         <span class="value" data-counter="{{ $totalPeserta }}">{{ number_format($totalPeserta) }}</span>
       </div>
       <div class="card__meta">
-        {{-- LABEL DIPERJELAS --}}
         @if($trendPeserta > 0) 
             <span class="trend up">▲ {{ round($trendPeserta) }}%</span> 
         @elseif($trendPeserta < 0)
@@ -84,21 +83,18 @@
       </div>
     </article>
 
-    {{-- CARD 3: METODE PRESENSI (FIXED) --}}
+    {{-- CARD 3: METODE PRESENSI --}}
     <article class="card">
       <div class="card__top">
         <div class="card__icon icon-blue">
-            {{-- Icon QR Scan --}}
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
         </div>
         <span class="card__label">Metode Presensi</span>
       </div>
       <div class="card__value">
-        {{-- Total Hadir Keseluruhan --}}
         <span class="value" data-counter="{{ $totalHadir }}">{{ number_format($totalHadir) }}</span>
         <span class="unit">Kehadiran</span>
       </div>
-      {{-- BREAKDOWN ONLINE VS SCAN --}}
       <div class="card__breakdown">
           <div class="bd-item" style="width: 50%">
               <span class="dot masuk"></span> Web/Online: <strong>{{ $hadirViaOnline }}</strong>
@@ -110,7 +106,7 @@
     </article>
   </section>
 
-  {{-- CHART SECTION (IMPROVED) --}}
+  {{-- CHART SECTION --}}
   <div class="panel mb-4">
       <div class="panel-header">
           <h3>Statistik Kepadatan Acara vs Kehadiran ({{ date('Y') }})</h3>
@@ -121,7 +117,7 @@
   </div>
 
   <div class="dashboard-grid">
-    {{-- KOLOM KIRI: TABEL (SAMA SEPERTI SEBELUMNYA) --}}
+    {{-- KOLOM KIRI: TABEL (SUDAH DIPERBAIKI) --}}
     <div class="panel">
         <div class="panel-header">
             <h3>Statistik Kehadiran Per Acara</h3>
@@ -131,9 +127,10 @@
             <table class="custom-table">
                 <thead>
                     <tr>
-                        <th width="35%">Nama Acara</th>
-                        <th width="20%">Mode</th>
-                        <th width="20%" class="text-center">Peserta</th>
+                        <th width="30%">Nama Acara</th>
+                        <th width="15%">Jenis Acara</th>
+                        <th width="15%" class="text-center">Peserta</th>
+                        <th width="15%" class="text-center">Hadir</th>
                         <th width="25%">Persentase</th>
                     </tr>
                 </thead>
@@ -150,19 +147,25 @@
                                 {{ $mode }}
                             </span>
                         </td>
+                        
                         <td class="text-center">
-                            <div class="stats-detail">
-                                <span class="main-num">{{ $acara->total_hadir }}</span>
-                                <span class="sub-text">dari {{ $acara->total_target }}</span>
-                                
-                                @if(strtolower($acara->mode_presensi) == 'kombinasi')
-                                <div class="split-stats">
-                                    <span title="Hadir Online">🌐 {{ $acara->hadir_online }}</span>
-                                    <span title="Hadir Offline">🏢 {{ $acara->hadir_offline }}</span>
-                                </div>
-                                @endif
-                            </div>
+                            <span class="num-badge badge-target">{{ $acara->total_target }}</span>
                         </td>
+
+                        <td class="text-center">
+                            {{-- Jika 0 warna merah (kosong), jika ada warna hijau --}}
+                            <span class="num-badge {{ $acara->total_hadir > 0 ? 'badge-hadir' : 'badge-empty' }}">
+                                {{ $acara->total_hadir }}
+                            </span>
+
+                            @if(strtolower($acara->mode_presensi) == 'kombinasi' && $acara->total_hadir > 0)
+                                <div class="mini-breakdown">
+                                    <span title="Hadir Online">🌐 {{ $acara->hadir_online }}</span>
+                                    <span title="Hadir Offline">📱 {{ $acara->hadir_offline }}</span>
+                                </div>
+                            @endif
+                        </td>
+
                         <td>
                             <div class="progress-container">
                                 <div class="progress-info">
@@ -177,7 +180,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" style="text-align: center; padding: 20px; color: #94a3b8;">Belum ada data acara.</td>
+                        <td colspan="5" style="text-align: center; padding: 20px; color: #94a3b8;">Belum ada data acara.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -185,7 +188,7 @@
         </div>
     </div>
 
-    {{-- KOLOM KANAN: LOG AKTIVITAS (SAMA SEPERTI SEBELUMNYA) --}}
+    {{-- KOLOM KANAN: LOG AKTIVITAS (TETAP) --}}
     <div class="panel">
         <div class="panel-header">
             <h3>Aktivitas Terbaru</h3>
