@@ -128,10 +128,10 @@
                 <thead>
                     <tr>
                         <th width="30%">Nama Acara</th>
-                        <th width="15%">Jenis Acara</th>
-                        <th width="15%" class="text-center">Peserta</th>
-                        <th width="15%" class="text-center">Hadir</th>
-                        <th width="25%">Persentase</th>
+                        <th width="10%">Jenis Acara</th>
+                        <th width="10%" class="text-center">Peserta</th>
+                        <th width="30%" class="text-center">Status Kehadiran</th>
+                        <th width="20%">Persentase</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -153,15 +153,24 @@
                         </td>
 
                         <td class="text-center">
-                            {{-- Jika 0 warna merah (kosong), jika ada warna hijau --}}
-                            <span class="num-badge {{ $acara->total_hadir > 0 ? 'badge-hadir' : 'badge-empty' }}">
-                                {{ $acara->total_hadir }}
-                            </span>
+                            @if($acara->total_hadir == 0)
+                                <span class="status-empty">Belum ada absen</span>
+                            @else
+                                <div class="status-group">
+                                    <div class="status-item in" title="Sedang Hadir/Masuk">
+                                        <span class="icon">⬇️</span>
+                                        <span class="count">{{ $acara->jml_masuk }}</span>
+                                    </div>
+                                    
+                                    <div class="status-item rest" title="Sedang Istirahat">
+                                        <span class="icon">☕</span>
+                                        <span class="count">{{ $acara->jml_istirahat }}</span>
+                                    </div>
 
-                            @if(strtolower($acara->mode_presensi) == 'kombinasi' && $acara->total_hadir > 0)
-                                <div class="mini-breakdown">
-                                    <span title="Hadir Online">🌐 {{ $acara->hadir_online }}</span>
-                                    <span title="Hadir Offline">📱 {{ $acara->hadir_offline }}</span>
+                                    <div class="status-item out" title="Sudah Pulang">
+                                        <span class="icon">⬆️</span>
+                                        <span class="count">{{ $acara->jml_pulang }}</span>
+                                    </div>
                                 </div>
                             @endif
                         </td>
@@ -173,7 +182,7 @@
                                 </div>
                                 <div class="progress-track">
                                     <div class="progress-fill {{ $acara->persentase >= 80 ? 'high' : ($acara->persentase >= 50 ? 'med' : 'low') }}" 
-                                         style="width: {{ $acara->persentase }}%"></div>
+                                        style="width: {{ $acara->persentase }}%"></div>
                                 </div>
                             </div>
                         </td>

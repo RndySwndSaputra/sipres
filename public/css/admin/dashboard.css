@@ -16,6 +16,13 @@
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 24px;
+  /* [OPSIONAL] Sticky Header */
+  /* position: sticky;
+  top: 70px; 
+  z-index: 9;
+  background: var(--bg);
+  padding-bottom: 10px; 
+  */
 }
 
 .page-title h1 {
@@ -228,14 +235,17 @@
   margin-bottom: 24px;
 }
 
-/* Table Styles */
+/* Table Styles - DENGAN STICKY HEADER FIX */
 .table-wrapper {
   overflow-x: auto;
+  max-height: 500px; /* Batasi tinggi tabel agar bisa discroll internal */
+  overflow-y: auto;
 }
 
 .custom-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate; /* Required for sticky th */
+  border-spacing: 0;
   font-size: 14px;
 }
 
@@ -248,6 +258,14 @@
   font-weight: 600;
   text-transform: uppercase;
   border-bottom: 1px solid var(--border);
+  
+  /* --- FIX TABLE HEADER SCROLLING --- */
+  position: sticky;
+  top: 0;
+  z-index: 5; /* Di atas konten tabel */
+  /* Pastikan background solid agar tidak transparan saat discroll */
+  background-color: #f8fafc; 
+  box-shadow: 0 1px 0 var(--border); /* Ganti border-bottom dengan shadow */
 }
 
 .custom-table td {
@@ -257,6 +275,7 @@
   vertical-align: middle;
 }
 
+/* Typography & Badges di dalam tabel */
 .event-title {
   display: block;
   font-weight: 600;
@@ -270,7 +289,6 @@
   margin-top: 2px;
 }
 
-/* --- BADGES & LABELS (PERBAIKAN: TARGET & HADIR) --- */
 .text-center {
   text-align: center !important;
 }
@@ -284,28 +302,24 @@
   min-width: 40px;
 }
 
-/* Target: Abu-abu Netral */
 .badge-target {
   background: #f1f5f9;
   color: #64748b;
   border: 1px solid #e2e8f0;
 }
 
-/* Hadir: Hijau (Jika ada) */
 .badge-hadir {
   background: #dcfce7;
   color: #15803d;
   border: 1px solid #bbf7d0;
 }
 
-/* Hadir: Merah Pudar (Jika 0/Kosong) */
 .badge-empty {
   background: #fee2e2;
   color: #991b1b;
   border: 1px dashed #fecaca;
 }
 
-/* Breakdown kecil di bawah angka */
 .mini-breakdown {
   display: flex;
   justify-content: center;
@@ -322,7 +336,6 @@
   border: 1px solid #f1f5f9;
 }
 
-/* Badges Mode */
 .badge-mode {
   padding: 4px 8px;
   border-radius: 6px;
@@ -420,7 +433,6 @@
   margin-left: 8px;
 }
 
-/* Live Dot */
 .live-dot {
   color: #ef4444;
   font-size: 12px;
@@ -443,8 +455,6 @@
     opacity: 0;
   }
 }
-
-/* Stats Detail - DELETED (Sudah diganti dengan style baru di atas) */
 
 /* Progress Bar */
 .progress-container {
@@ -484,7 +494,54 @@
   background: #ef4444;
 }
 
-/* --- RESPONSIVE CARD --- */
+/* Status Item (Kehadiran) */
+.status-empty {
+  font-size: 11px;
+  color: #cbd5e1;
+  font-style: italic;
+}
+
+.status-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.status-item.in {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+
+.status-item.rest {
+  background: #ffedd5;
+  color: #9a3412;
+  border-color: #fed7aa;
+}
+
+.status-item.out {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+.status-item .icon {
+  font-size: 10px;
+}
+
+/* RESPONSIVE MEDIA QUERIES */
 @media (min-width: 640px) {
   .card {
     grid-column: span 6;

@@ -1,4 +1,6 @@
-/* Page Header - shared with dashboard */
+/* =========================================
+   PAGE HEADER (KODE ASLI)
+   ========================================= */
 .page-header {
   display: flex;
   align-items: flex-end;
@@ -20,17 +22,19 @@
   font-size: 14px;
 }
 
-/* Toolbar Utama */
+/* =========================================
+   TOOLBAR UTAMA
+   ========================================= */
 .acara-toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Kiri: Search, Kanan: Actions */
+  justify-content: space-between;
   gap: 12px;
   margin-bottom: 20px;
   flex-wrap: wrap;
 }
 
-/* Search Bar (Kiri - Flexible Width) */
+/* Search Bar */
 .search {
   display: inline-flex;
   align-items: center;
@@ -40,7 +44,7 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   color: var(--gray-500);
-  flex: 1; /* Mengisi ruang kosong */
+  flex: 1;
   min-width: 250px;
   transition: border-color 200ms ease, box-shadow 200ms ease;
 }
@@ -69,15 +73,15 @@
   color: var(--gray-400);
 }
 
-/* Toolbar Actions (Kanan - Items Aligned) */
+/* Toolbar Actions */
 .toolbar-actions {
   display: flex;
   align-items: center;
-  gap: 10px; /* Jarak antar elemen */
+  gap: 10px;
   flex-wrap: wrap;
 }
 
-/* Filter Status Select (Di tengah actions) */
+/* Filter Status Select */
 .filter-select {
   padding: 10px 36px 10px 12px;
   border-radius: 12px;
@@ -88,9 +92,7 @@
   outline: none;
   cursor: pointer;
   transition: all 200ms ease;
-  min-width: 160px; /* Lebar minimum filter */
-  
-  /* Custom Arrow */
+  min-width: 160px;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -167,7 +169,20 @@
   border-color: rgba(220, 38, 38, .3);
 }
 
-/* Grid & Cards */
+.btn-info {
+  background: #3463e3;
+  color: #ffffff;
+  border-color: rgba(14, 165, 233, 0.4);
+}
+
+.btn-info:hover {
+  background: #2427da;
+  border-color: rgba(10, 92, 207, 0.6);
+}
+
+/* =========================================
+   GRID & CARDS (KODE ASLI)
+   ========================================= */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -177,137 +192,11 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.event-card {
-  background: #ffffff;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
-  display: grid;
-  grid-template-rows: auto auto 1fr auto;
-  gap: 12px;
-  box-shadow: 0 6px 14px rgba(2, 6, 23, 0.06);
-  transition: all 200ms ease;
-  animation: slideUp 300ms ease;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.event-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(2, 6, 23, 0.12);
-  border-color: rgba(34, 197, 94, 0.2);
-}
-
-.event-card__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
-  min-height: 28px;
-}
-
-.event-card__titlewrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
-}
-
-.event-card__title {
-  margin: 0;
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--gray-900);
-  word-break: break-word;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: var(--brand-soft);
-  color: var(--brand-strong);
-  font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 0.3px;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.badge svg {
-  width: 14px;
-  height: 14px;
-}
-
-/* Event Meta Info */
-.event-card__meta {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 12px;
-  background: rgba(2, 6, 23, 0.02);
-  border-radius: 10px;
-}
-
-.meta-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 0;
-  border: none;
-  background: transparent;
-}
-
-.meta-label {
-  color: var(--muted);
-  font-weight: 600;
-  font-size: 11px;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-}
-
-.meta-time {
-  color: var(--gray-900);
-  font-weight: 700;
-  font-size: 13px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Card Actions */
-.event-card__actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  margin-top: 4px;
-  flex-wrap: wrap;
-}
-
-/* Acara Card - Presensi Style */
+/* Acara Card Style */
 .acara-card {
   background: #ffffff;
   border: 1px solid var(--border);
@@ -317,6 +206,12 @@
   box-shadow: 0 2px 8px rgba(2, 6, 23, 0.04);
   display: flex;
   flex-direction: column;
+  animation: slideUp 300ms ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .acara-card:hover {
@@ -344,20 +239,9 @@
   letter-spacing: 0.3px;
 }
 
-.status-upcoming {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.status-ongoing {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.status-completed {
-  background: #f3f4f6;
-  color: #6b7280;
-}
+.status-upcoming { background: #dbeafe; color: #1e40af; }
+.status-ongoing { background: #dcfce7; color: #15803d; }
+.status-completed { background: #f3f4f6; color: #6b7280; }
 
 .card-body {
   padding: 16px;
@@ -395,10 +279,6 @@
   color: var(--gray-500);
 }
 
-.info-item span {
-  line-height: 1.4;
-}
-
 .card-footer {
   padding: 12px 16px;
   border-top: 1px solid var(--border);
@@ -414,7 +294,24 @@
   min-width: 80px;
 }
 
-/* Table Section */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* =========================================
+   TABLE SECTION (KODE ASLI)
+   ========================================= */
 .table-section {
   animation: fadeIn 300ms ease;
 }
@@ -434,29 +331,14 @@
   font-size: 14px;
 }
 
-/* Desktop precise column widths */
 @media (min-width: 769px) {
-  .table {
-    table-layout: fixed;
-  }
-  .table col.col-nama {
-    width: auto;
-  }
-  .table col.col-tanggal {
-    width: 16%;
-  }
-  .table col.col-waktu {
-    width: 20%;
-  }
-  .table col.col-istirahat {
-    width: 20%;
-  }
-  .table col.col-peserta {
-    width: 10%;
-  }
-  .table col.col-aksi {
-    width: 20%;
-  }
+  .table { table-layout: fixed; }
+  .table col.col-nama { width: auto; }
+  .table col.col-tanggal { width: 16%; }
+  .table col.col-waktu { width: 20%; }
+  .table col.col-istirahat { width: 20%; }
+  .table col.col-peserta { width: 10%; }
+  .table col.col-aksi { width: 20%; }
 }
 
 .table thead {
@@ -502,7 +384,6 @@
   margin: 0 auto;
 }
 
-/* Compact buttons inside table */
 .table .btn-sm {
   padding: 6px 10px;
   border-radius: 10px;
@@ -529,88 +410,71 @@
   margin: 0;
 }
 
-.table .btn a {
-  text-decoration: none;
-  color: inherit;
-}
-
-/* Modal */
+/* =========================================
+   MODAL FIX (AGAR TIDAK NEMBUS)
+   ========================================= */
+/* Container Modal (Flexbox Centering) */
 .modal {
-  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: none; /* Default Hidden */
+  align-items: center;
+  justify-content: center;
 }
 
 .modal.is-open {
-  display: block;
+  display: flex; /* Flexbox aktif saat open */
 }
 
+/* Backdrop Blur */
 .modal__backdrop {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  background: rgba(2, 6, 23, 0.35);
-  backdrop-filter: blur(3px);
-  z-index: 30;
+  background: rgba(15, 23, 42, 0.4); /* Warna Gelap Pegawai */
+  backdrop-filter: blur(2px);
+  z-index: -1;
   animation: backdropFade 200ms ease;
 }
 
 @keyframes backdropFade {
-  from {
-    opacity: 0;
-    backdrop-filter: blur(0);
-  }
-  to {
-    opacity: 1;
-    backdrop-filter: blur(3px);
-  }
+  from { opacity: 0; backdrop-filter: blur(0); }
+  to { opacity: 1; backdrop-filter: blur(2px); }
 }
 
-.btn-info {
-  background: #3463e3;
-  color: #ffffff;
-  border-color: rgba(14, 165, 233, 0.4);
-}
-
-.btn-info:hover {
-  background: #2427da;
-  border-color: rgba(10, 92, 207, 0.6);
-}
-
+/* Dialog Box - STRUKTUR BARU (FLEX COLUMN) */
+/* Ini kuncinya agar tidak nembus: Dialognya yang jadi container utama */
 .modal__dialog {
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
   width: min(680px, 92vw);
-  max-height: 90vh;
+  max-height: 90vh; /* Batasi tinggi maksimal */
   background: #ffffff;
   border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: 0 24px 48px rgba(2, 6, 23, .2);
-  overflow: auto;
-  z-index: 40;
-  animation: modalSlideUp 300ms ease;
+  border-radius: 16px; 
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Flex Layout: Header & Footer diam, Body scroll */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Mencegah scrollbar ganda */
+  
+  animation: modalSlideUp 0.3s ease;
 }
 
 @keyframes modalSlideUp {
-  from {
-    opacity: 0;
-    transform: translate(-50%, calc(-50% + 16px));
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
+/* Header Modal - STATIC (Tidak Sticky lagi, tapi diam karena flex layout) */
 .modal__header {
   display: flex;
-  position: sticky;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 18px;
+  padding: 16px 24px;
   border-bottom: 1px solid var(--border);
   background: #ffffff;
-  position: sticky;
-  top: 0;
+  flex-shrink: 0; /* Jangan mengecil */
   z-index: 10;
 }
 
@@ -622,17 +486,16 @@
 }
 
 .modal__close {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   display: inline-grid;
   place-items: center;
   border: none;
   background: transparent;
-  color: var(--gray-700);
+  color: var(--gray-500);
   cursor: pointer;
-  transition: background 150ms ease, color 150ms ease;
-  flex-shrink: 0;
+  transition: all 150ms ease;
 }
 
 .modal__close:hover {
@@ -640,371 +503,45 @@
   color: var(--gray-900);
 }
 
+/* Body Modal - SCROLLABLE AREA */
 .modal__body {
-  padding: 0 20px 20px 20px;
-  display: grid;
-  gap: 20px;
-  overflow: visible;
-  padding-top: 24px;
-}
-
-.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-.field {
-  display: grid;
-  gap: 6px;
-  width: 100%;
-}
-
-.field label {
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--gray-700);
-  letter-spacing: 0.2px;
-}
-
-.field input,
-.field select,
-.field textarea {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: #ffffff;
-  color: var(--gray-900);
-  outline: none;
-  font-size: 14px;
-  font-family: inherit;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
-  box-sizing: border-box;
-}
-
-.field select {
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 36px;
-}
-
-.field select:focus,
-.field input:focus,
-.field textarea:focus {
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
-  border-color: rgba(34, 197, 94, 0.5);
-}
-
-.field input::placeholder,
-.field textarea::placeholder {
-  color: var(--gray-400);
-}
-
-.field label .required {
-  color: #dc2626;
-  margin-left: 2px;
-}
-
-.form-section {
-  display: grid;
-  gap: 12px;
-}
-
-.form-section__title {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--gray-900);
-  letter-spacing: 0.2px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid rgba(2, 6, 23, 0.08);
-}
-
-.form-section__content {
-  display: grid;
-  gap: 14px;
-}
-
-/* Field Note */
-.field-note {
-  margin-top: 8px;
-  padding: 10px 12px;
-  background: rgba(59, 130, 246, 0.08);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 8px;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.note-content {
+  padding: 0 24px 24px 24px; /* Padding samping */
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  color: var(--gray-700);
+  flex-direction: column;
+  gap: 20px;
+  
+  /* Logika Scroll */
+  flex: 1; /* Mengisi sisa ruang */
+  overflow-y: auto; /* Scroll hanya di sini */
+  position: relative; /* Context untuk sticky elemen di dalamnya */
 }
 
-.note-content svg {
-  flex-shrink: 0;
-  margin-top: 2px;
-  color: #3b82f6;
-}
-
-.note-content strong {
-  color: var(--gray-900);
-  font-weight: 600;
-  display: block;
-  margin-bottom: 2px;
-}
-
-.note-content div {
-  flex: 1;
-}
-
+/* Footer Modal - STATIC */
 .modal__footer {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  padding-top: 12px;
-  margin-top: 8px;
+  gap: 12px;
+  padding: 16px 24px;
   border-top: 1px solid var(--border);
+  background: #f8fafc;
+  flex-shrink: 0; /* Jangan mengecil */
 }
 
 /* =========================================
-   EMPTY STATE (FIX TENGAH)
+   STEPPER STYLES (FIXED NEMBUS)
    ========================================= */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;      /* Menengahkan icon & teks secara horizontal */
-  justify-content: center;  /* Menengahkan secara vertikal */
-  text-align: center;       /* Memastikan teks rata tengah */
-  width: 100%;              /* WAJIB: Agar mengambil lebar penuh layar */
-  min-height: 300px;        /* Memberi tinggi minimal agar terlihat proporsional */
-  padding: 40px 20px;
-  background: transparent;  /* Transparan agar menyatu dengan background halaman */
-  border: none;             /* Hilangkan border jika ingin terlihat bersih */
-}
-
-.empty-state svg {
-  color: var(--gray-400);   /* Warna ikon abu-abu */
-  margin-bottom: 16px;      /* Jarak antara ikon dan teks */
-  width: 64px;              /* Ukuran ikon diperbesar sedikit */
-  height: 64px;
-}
-
-.empty-message {
-  margin: 0 0 8px 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--gray-700);
-}
-
-.empty-hint {
-  margin: 0;
-  font-size: 14px;
-  color: var(--muted);
-  max-width: 400px;         
-  line-height: 1.5;
-}
-
-/* Responsive Design - MOBILE & IPAD FIX */
-@media (max-width: 768px) {
-  .acara-toolbar {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .search {
-    width: 100%;
-    min-width: auto;
-    max-width: 100%;
-  }
-
-  /* PERBAIKAN: Toolbar actions tetap flex (sebelahan) */
-  .toolbar-actions {
-    width: 100%;
-    justify-content: space-between;
-    gap: 10px; /* Tambahkan gap agar tidak dempet */
-  }
-
-  /* PERBAIKAN UTAMA: Filter Select jangan 100% width, tapi flex: 1 */
-  .filter-select {
-    width: auto;
-    flex: 1; /* Biarkan mengisi ruang kosong di sebelah tombol */
-    min-width: 120px; /* Minimal width agar text tidak terpotong */
-    
-    /* Font size 16px mencegah auto-zoom di iOS/iPad yang bikin tampilan "gede" */
-    font-size: 16px; 
-  }
-
-  .view-toggle {
-    display: flex;
-    gap: 8px;
-  }
-
-  .btn-primary {
-    flex: 1; /* Tombol juga ikut menyesuaikan */
-  }
-
-  .cards {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .event-card__meta {
-    grid-template-columns: 1fr;
-  }
-
-  .grid-2 {
-    grid-template-columns: 1fr;
-  }
-
-  .modal__dialog {
-    width: min(100%, calc(100vw - 20px));
-    overflow-y: auto;
-    max-height: 90vh;
-  }
-
-  .modal__body {
-    padding: 16px;
-    gap: 16px;
-  }
-
-  .form-section__content {
-    gap: 12px;
-  }
-
-  .table {
-    font-size: 13px;
-  }
-
-  .table thead th,
-  .table tbody td {
-    padding: 10px 8px;
-  }
-
-  .cell-actions {
-    justify-content: center;
-  }
-
-  .table td:nth-child(3),
-  .table td:nth-child(4),
-  .table td:nth-child(5) {
-    text-align: center;
-  }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  .cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .event-card__meta {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (min-width: 1025px) {
-  .cards {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .event-card__meta {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-  }
-}
-
-/* Utility */
-[hidden] {
-  display: none !important;
-}
-
-.content-area {
-  position: relative;
-  min-height: 260px;
-}
-
-.loading-overlay {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background: rgba(255, 255, 255, 0.7);
-  z-index: 50;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 3px solid rgba(2, 6, 23, 0.1);
-  border-top-color: var(--brand);
-  animation: spin .8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Toasts */
-.toast-container {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  display: grid;
-  gap: 8px;
-  z-index: 1000;
-}
-
-.toast {
-  background: #111827;
-  color: #fff;
-  border-radius: 10px;
-  padding: 10px 12px;
-  box-shadow: 0 8px 20px rgba(2, 6, 23, .2);
-  min-width: 200px;
-  max-width: min(360px, 90vw);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  animation: fadeIn 200ms ease;
-}
-
-.toast.success {
-  background: #15803d;
-}
-
-.toast.error {
-  background: #dc2626;
-}
-
-.toast .close {
-  margin-left: auto;
-  background: transparent;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  opacity: .9;
-}
-
-/* --- STEPPER STYLES --- */
 .stepper-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  
+  /* Sticky di dalam modal__body */
   position: sticky;
-  top: 54px;
+  top: 0; 
   z-index: 5;
-  background: #ffffff;
-  margin: 0 -20px 20px -20px;
+  background: #ffffff; /* Background solid agar tidak nembus */
+  
+  margin: 0 -24px 20px -24px; /* Kompensasi padding body */
   padding: 15px 30px;
   border-bottom: 1px solid var(--border);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
@@ -1075,4 +612,314 @@
 
 .step-content.active {
   display: block;
+}
+
+/* =========================================
+   FORM ELEMENTS (KODE ASLI)
+   ========================================= */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+}
+
+.field label {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--gray-700);
+  letter-spacing: 0.2px;
+}
+
+.field input, .field select, .field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--gray-900);
+  outline: none;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  box-sizing: border-box;
+}
+
+.field select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.field select:focus, .field input:focus, .field textarea:focus {
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.5);
+}
+
+.field input::placeholder, .field textarea::placeholder {
+  color: var(--gray-400);
+}
+
+.field label .required {
+  color: #dc2626;
+  margin-left: 2px;
+}
+
+.form-section {
+  display: grid;
+  gap: 12px;
+}
+
+.form-section__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-900);
+  letter-spacing: 0.2px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(2, 6, 23, 0.08);
+}
+
+.form-section__content {
+  display: grid;
+  gap: 14px;
+}
+
+/* Field Note */
+.field-note {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.note-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--gray-700);
+}
+
+.note-content svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #3b82f6;
+}
+
+.note-content strong {
+  color: var(--gray-900);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.note-content div {
+  flex: 1;
+}
+
+/* =========================================
+   LOADING & UTILS (GAYA PESERTA)
+   ========================================= */
+[hidden] {
+  display: none !important;
+}
+
+/* Content Area untuk Loading */
+.content-area {
+  position: relative;
+  min-height: 260px;
+}
+
+/* Overlay Loading (Spinner Tengah) */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.7); /* Transparan Putih */
+  z-index: 50;
+}
+
+/* Spinner Hijau */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid rgba(2, 6, 23, 0.1);
+  border-top-color: var(--brand);
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  min-height: 300px;
+  padding: 40px 20px;
+  background: transparent;
+  border: none;
+}
+
+.empty-state svg {
+  color: var(--gray-400);
+  margin-bottom: 16px;
+  width: 64px;
+  height: 64px;
+}
+
+.empty-message {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.empty-hint {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+/* Toasts */
+.toast-container {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  display: grid;
+  gap: 8px;
+  z-index: 1000;
+}
+
+.toast {
+  background: #111827;
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: 0 8px 20px rgba(2, 6, 23, .2);
+  min-width: 200px;
+  max-width: min(360px, 90vw);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  animation: fadeIn 200ms ease;
+}
+
+.toast.success { background: #15803d; }
+.toast.error { background: #dc2626; }
+
+.toast .close {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: .9;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .acara-toolbar {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .search {
+    width: 100%;
+    min-width: auto;
+    max-width: 100%;
+  }
+
+  .toolbar-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .filter-select {
+    width: auto;
+    flex: 1;
+    min-width: 120px;
+    font-size: 16px;
+  }
+
+  .view-toggle {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-primary {
+    flex: 1;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .modal__dialog {
+    width: min(100%, calc(100vw - 20px));
+    max-height: 90vh;
+  }
+
+  .modal__body {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .form-section__content {
+    gap: 12px;
+  }
+
+  .table {
+    font-size: 13px;
+  }
+
+  .table thead th,
+  .table tbody td {
+    padding: 10px 8px;
+  }
+
+  .cell-actions {
+    justify-content: center;
+  }
+
+  .table td:nth-child(3),
+  .table td:nth-child(4),
+  .table td:nth-child(5) {
+    text-align: center;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1025px) {
+  .cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }

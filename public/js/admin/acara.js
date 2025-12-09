@@ -14,7 +14,7 @@
     const grid = document.getElementById('eventGrid');
     const table = document.getElementById('eventTable');
     const search = document.getElementById('eventSearch');
-    const filterStatus = document.getElementById('filterStatus'); // BARU: Filter Status
+    const filterStatus = document.getElementById('filterStatus'); 
     const btnAdd = document.getElementById('btnAddEvent');
     const btnViewGrid = document.getElementById('btnViewGrid');
     const btnViewTable = document.getElementById('btnViewTable');
@@ -36,12 +36,12 @@
     const containerLokasi = document.getElementById('fieldLokasiContainer');
     const containerLink = document.getElementById('fieldLinkContainer');
 
-    // --- LOGIKA BARU: Mode & Tipe Presensi ---
-    const inputModePresensi = document.getElementById('modePresensi'); // Offline, Online, Kombinasi
-    const containerTipePresensi = document.getElementById('fieldTipePresensiContainer'); // Wadah dropdown tipe
-    const inputTipePresensi = document.getElementById('tipePresensi'); // Tradisional, Cepat
-    const hintTradisional = document.getElementById('hintTradisional'); // Teks petunjuk TTD
-    const hintCepat = document.getElementById('hintCepat'); // Teks petunjuk Tanpa TTD
+    // --- Mode & Tipe Presensi ---
+    const inputModePresensi = document.getElementById('modePresensi'); 
+    const containerTipePresensi = document.getElementById('fieldTipePresensiContainer'); 
+    const inputTipePresensi = document.getElementById('tipePresensi'); 
+    const hintTradisional = document.getElementById('hintTradisional'); 
+    const hintCepat = document.getElementById('hintCepat'); 
 
     // --- Waktu ---
     const inputMulai = document.getElementById('waktuMulai');
@@ -248,7 +248,7 @@
     }
 
     // =========================================================================
-    // 5. STEPPER
+    // 5. STEPPER & NAVIGASI (FIX ENTER KEY)
     // =========================================================================
     const updateStepperUI = () => {
         stepItems.forEach(item => {
@@ -301,6 +301,28 @@
         return valid;
     };
 
+    // [FIX ENTER KEY] Cegah enter langsung submit form
+    form.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            // Biarkan enter berfungsi normal di Textarea
+            if (e.target.tagName.toLowerCase() === 'textarea') return;
+            
+            e.preventDefault(); // Matikan fungsi submit bawaan
+            
+            // Jika belum di step terakhir, anggap Enter sebagai "Next"
+            if (currentStep < maxStep) {
+                if(validateCurrentStep()) {
+                    currentStep++;
+                    updateStepperUI();
+                }
+            } 
+            // Jika sudah di step terakhir, baru boleh simpan (opsional, atau matikan saja)
+            // else {
+            //    btnSave.click(); 
+            // }
+        }
+    });
+
     if(btnNext) btnNext.addEventListener('click', () => {
         if(validateCurrentStep() && currentStep < maxStep) { currentStep++; updateStepperUI(); }
     });
@@ -310,7 +332,7 @@
     });
 
     // =========================================================================
-    // 6. CRUD (FETCH & RENDER) - UPDATE FILTERING STATUS
+    // 6. CRUD & SORTING (FIX SORTING LOGIC)
     // =========================================================================
     const fetchList = async () => {
         if(loadingOverlay) loadingOverlay.hidden = false;
@@ -319,32 +341,58 @@
             if (!res.ok) throw new Error(res.statusText);
             const json = await res.json();
             events = json.success ? json.data : [];
-        } catch(e) { console.error(e); events = []; showToast('Gagal memuat data', 'error'); }
-        render();
-        if(loadingOverlay) loadingOverlay.hidden = true;
+        } catch(e) { 
+            console.error(e); 
+            events = []; 
+            showToast('Gagal memuat data', 'error'); 
+        } finally {
+            render(); 
+            if(loadingOverlay) loadingOverlay.hidden = true;
+        }
     };
 
     const render = () => {
         if (typeof viewMode === 'undefined') viewMode = 'grid';
         
-        // --- LOGIKA FILTER STATUS (BARU) ---
-        const statusValue = filterStatus ? filterStatus.value : ''; // Ambil nilai dropdown
+        const statusValue = filterStatus ? filterStatus.value : ''; 
 
-        const list = events.filter(e => {
-            // 1. Filter Keyword
+        // 1. FILTERING
+        let list = events.filter(e => {
             const matchKeyword = (e.nama_acara||'').toLowerCase().includes(keyword);
             if (!matchKeyword) return false;
 
-            // 2. Filter Status
             if (statusValue) {
                 const currentStatus = getLiveStatus(e.waktu_mulai, e.waktu_selesai).label;
-                // "Akan Datang", "Selesai", "Berlangsung"
                 if (currentStatus !== statusValue) return false;
             }
-
             return true;
         });
+
+        // 2. [FIX SORTING] Logika Prioritas Status
+        // Urutan: Akan Datang (1) -> Berlangsung (2) -> Selesai (3)
+        const statusPriority = {
+            'Akan Datang': 1,
+            'Berlangsung': 2,
+            'Selesai': 3
+        };
+
+        list.sort((a, b) => {
+            const statusA = getLiveStatus(a.waktu_mulai, a.waktu_selesai).label;
+            const statusB = getLiveStatus(b.waktu_mulai, b.waktu_selesai).label;
+            
+            const scoreA = statusPriority[statusA] || 99;
+            const scoreB = statusPriority[statusB] || 99;
+
+            // Jika status beda, urutkan berdasarkan prioritas (1 -> 2 -> 3)
+            if (scoreA !== scoreB) {
+                return scoreA - scoreB; 
+            }
+            
+            // Jika status sama, urutkan tanggal (Terbaru -> Terlama)
+            return new Date(b.waktu_mulai) - new Date(a.waktu_mulai);
+        });
         
+        // 3. RENDER HTML
         if(!list.length) {
             if(grid) grid.innerHTML = '';
             if(table) table.innerHTML = '';
@@ -521,7 +569,7 @@
     // 8. MODAL FUNCTIONS (OPEN/RESET/EDIT)
     // =========================================================================
     const openModal = (mode, data) => {
-        modal.classList.add('is-open');
+        modal.classList.add('is-open'); 
         document.body.classList.add('no-scroll'); 
         currentStep = 1;
         updateStepperUI();
@@ -537,7 +585,7 @@
             inputMulai.value = localIso;
             
             inputModePresensi.value = 'Offline';
-            inputTipePresensi.value = 'Tradisional'; // Default Tradisional
+            inputTipePresensi.value = 'Tradisional'; 
             
         } else {
             modalTitle.textContent = 'Edit Acara';
@@ -556,16 +604,12 @@
             if(inputIstirahatMulai) inputIstirahatMulai.value = istMul.includes('T') ? istMul.split('T')[1] : istMul;
             if(inputIstirahatSelesai) inputIstirahatSelesai.value = istSel.includes('T') ? istSel.split('T')[1] : istSel;
             
-            // Set Mode Presensi
             inputModePresensi.value = data.mode_presensi || 'Offline';
-            
-            // Set Tipe Presensi (ambil dari database)
             inputTipePresensi.value = data.tipe_presensi || 'Tradisional'; 
             
             inputPeserta.value = data.maximal_peserta || '';
         }
         
-        // Panggil ini agar form menyesuaikan tampilan berdasarkan data yang baru diload
         updateFormDisplay();
     };
 
@@ -589,7 +633,7 @@
         
         if(settingEventId) settingEventId.value = id;
         if(settingTolerance) settingTolerance.value = item.toleransi_menit || 15; 
-        if(timeModal) timeModal.classList.add('is-open');
+        if(timeModal) timeModal.classList.add('is-open'); 
     };
 
     if(timeForm) {
@@ -614,7 +658,7 @@
                     const item = events.find(x => String(x.id_acara) === String(id));
                     if(item) item.toleransi_menit = val;
                     showToast(`Batas waktu berhasil diatur: ${val} menit`);
-                    if(timeModal) timeModal.classList.remove('is-open');
+                    if(timeModal) timeModal.classList.remove('is-open'); 
                 } else {
                     showToast('Gagal memperbarui toleransi', 'error');
                 }
@@ -644,7 +688,6 @@
             const method = isEdit ? 'PUT' : 'POST';
             
             const mode = inputModePresensi.value;
-            // Ambil nilai tipe presensi (Tradisional / Cepat)
             const tipe = inputTipePresensi.value; 
 
             const rawMulai = inputMulai.value; 
@@ -666,7 +709,7 @@
                 maximal_peserta: inputPeserta.value || 0,
                 materi: inputMateri ? inputMateri.value : '',
                 mode_presensi: mode,
-                tipe_presensi: tipe, // KIRIM DATA TIPE KE SERVER
+                tipe_presensi: tipe, 
             };
 
             const originalText = btnSave.innerHTML;
@@ -686,7 +729,7 @@
             .then(json => {
                 if(json.success) {
                     showToast('Berhasil disimpan', 'success');
-                    modal.classList.remove('is-open');
+                    modal.classList.remove('is-open'); 
                     document.body.classList.remove('no-scroll');
                     fetchList(); 
                 } else { 
@@ -714,10 +757,15 @@
         }
     });
     
-    modal.addEventListener('click', (e) => { if(e.target === document.querySelector('.modal__backdrop')) { modal.classList.remove('is-open'); document.body.classList.remove('no-scroll'); } });
-    if(search) { search.addEventListener('input', (e) => { keyword = (e.target.value || '').toLowerCase().trim(); render(); }); }
+    // Tutup modal saat klik backdrop
+    modal.addEventListener('click', (e) => { 
+        if(e.target.classList.contains('modal') || e.target.classList.contains('modal__backdrop')) { 
+            modal.classList.remove('is-open'); 
+            document.body.classList.remove('no-scroll'); 
+        } 
+    });
     
-    // --- EVENT LISTENER FILTER STATUS (BARU) ---
+    if(search) { search.addEventListener('input', (e) => { keyword = (e.target.value || '').toLowerCase().trim(); render(); }); }
     if(filterStatus) { filterStatus.addEventListener('change', render); }
 
     fetchList();

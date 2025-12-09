@@ -1,9 +1,14 @@
-/* Base + Theme */
+/* =========================================
+   BASE + THEME VARIABLES
+   ========================================= */
 :root {
+  /* Green Palette */
   --green-700: #15803d;
   --green-600: #16a34a;
   --green-500: #22c55e;
   --green-50: #f0fdf4;
+
+  /* Gray Palette */
   --gray-900: #0f172a;
   --gray-800: #1f2937;
   --gray-700: #334155;
@@ -14,26 +19,38 @@
   --gray-100: #f1f5f9;
   --white: #ffffff;
 
+  /* Semantic Colors */
   --bg: #f8fafc;
   --panel: #ffffff;
   --panel-2: #ffffff;
-  --border: rgba(2,6,23,0.08);
-  --text: rgba(15,23,42,0.92);
-  --muted: rgba(15,23,42,0.65);
-  --muted-2: rgba(15,23,42,0.5);
+  --border: rgba(2, 6, 23, 0.08);
+  --text: rgba(15, 23, 42, 0.92);
+  --muted: rgba(15, 23, 42, 0.65);
+  --muted-2: rgba(15, 23, 42, 0.5);
+
+  /* Brand Colors */
   --brand: var(--green-600);
   --brand-strong: var(--green-700);
   --brand-soft: var(--green-50);
   --shadow-halo: 0 0 0 3px rgba(34, 197, 94, 0.25);
+
+  /* Dimensi Layout */
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 84px;
+  --navbar-height: 64px;
 }
 
+/* =========================================
+   RESET & TYPOGRAPHY
+   ========================================= */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
@@ -45,33 +62,59 @@ body {
   line-height: 1.5;
 }
 
-a { color: inherit; text-decoration: none; }
-button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+a {
+  color: inherit;
+  text-decoration: none;
+}
 
-/* Layout */
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* =========================================
+   MAIN LAYOUT GRID
+   ========================================= */
 .layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: var(--sidebar-width) 1fr;
   min-height: 100dvh;
   transition: grid-template-columns 220ms ease;
+  position: relative; /* Penting untuk konteks stacking */
 }
 
 .layout.sidebar-collapsed {
-  grid-template-columns: 84px 1fr;
+  grid-template-columns: var(--sidebar-collapsed-width) 1fr;
 }
 
-/* Sidebar */
+/* =========================================
+   SIDEBAR COMPONENTS
+   ========================================= */
 .sidebar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  height: 100dvh;
   background: #ffffff;
   border-right: 1px solid var(--border);
   padding: 16px 12px;
   gap: 12px;
-  z-index: 20;
+  z-index: 50;
+  transition: transform 220ms ease, width 220ms ease; /* Tambahkan transform */
+  overflow-y: auto;
+}
+
+/* Sidebar Collapsed Logic */
+.layout.sidebar-collapsed .sidebar {
+  width: var(--sidebar-collapsed-width);
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .sidebar__brand {
@@ -82,10 +125,17 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   padding: 8px 8px;
   border-radius: 12px;
   background: transparent;
+  min-height: 63px;
 }
 
-.brand__image { display: block; height: 63px; width: auto; }
+.brand__image {
+  display: block;
+  height: 63px;
+  width: auto;
+  transition: height 220ms ease;
+}
 
+/* Navigation Items */
 .sidebar__nav {
   display: flex;
   flex-direction: column;
@@ -104,16 +154,17 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border-radius: 10px;
   position: relative;
   transition: background 140ms ease, color 140ms ease;
+  white-space: nowrap;
 }
 
 .nav__item:hover {
-  background: rgba(2,6,23,0.06);
+  background: rgba(2, 6, 23, 0.06);
 }
 
 .nav__item.is-active {
-  background: rgba(34,197,94,0.10);
+  background: rgba(34, 197, 94, 0.10);
   color: var(--gray-900);
-  outline: 1px solid rgba(34,197,94,0.20);
+  outline: 1px solid rgba(34, 197, 94, 0.20);
 }
 
 .nav__icon {
@@ -131,6 +182,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  opacity: 1;
+  transition: opacity 100ms ease;
 }
 
 .nav__item::before {
@@ -145,54 +198,40 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   transition: background 140ms ease;
 }
 
-.nav__item.is-active .nav__icon { color: var(--brand-strong); }
-.nav__item:hover .nav__icon { color: var(--brand); }
-.nav__item.is-active::before { background: var(--brand); }
+.nav__item.is-active .nav__icon {
+  color: var(--brand-strong);
+}
 
-/* Sidebar collapsed states */
+.nav__item:hover .nav__icon {
+  color: var(--brand);
+}
+
+.nav__item.is-active::before {
+  background: var(--brand);
+}
+
+/* Sidebar Collapsed State */
 .layout.sidebar-collapsed .nav__label,
 .layout.sidebar-collapsed .brand__text {
   display: none;
+  opacity: 0;
 }
 
-.layout.sidebar-collapsed .brand__image { height: 28px; }
-
-.layout.sidebar-collapsed .sidebar {
-  padding-left: 10px;
-  padding-right: 10px;
+.layout.sidebar-collapsed .brand__image {
+  height: 28px;
 }
 
-/* Main area */
-.main {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  min-width: 0;
-}
-
-/* Navbar */
-.navbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 18px;
-  background: #ffffff;
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: none;
-}
-
-.backdrop {
+.layout.sidebar-collapsed .logout__label {
   display: none;
 }
 
-/* Sidebar bottom / Logout */
+/* Sidebar Bottom (Logout) */
 .sidebar__bottom {
   margin-top: auto;
   padding-top: 10px;
   border-top: 1px solid var(--border);
 }
+
 .logout {
   width: 100%;
   display: grid;
@@ -205,9 +244,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   background: transparent;
   transition: background 140ms ease, color 140ms ease;
 }
+
 .logout:hover {
-  background: rgba(2,6,23,0.06);
+  background: rgba(2, 6, 23, 0.06);
 }
+
 .logout__icon {
   display: inline-grid;
   place-items: center;
@@ -215,15 +256,54 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   height: 28px;
   color: var(--gray-500);
 }
+
 .logout:hover .logout__icon {
-  color: #dc2626; /* subtle danger hint */
+  color: #dc2626;
 }
+
 .logout__label {
   font-weight: 600;
   font-size: 14px;
 }
-.layout.sidebar-collapsed .logout__label { display: none; }
 
+/* =========================================
+   MAIN CONTENT AREA
+   ========================================= */
+.main {
+  grid-column: 2; /* Default Desktop */
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-top: var(--navbar-height);
+  width: 100%; /* Pastikan full width */
+}
+
+/* =========================================
+   FIXED NAVBAR
+   ========================================= */
+.navbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: var(--navbar-height);
+  width: calc(100% - var(--sidebar-width));
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 22px;
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  transition: width 220ms ease, left 220ms ease;
+}
+
+/* Adjust Navbar width when sidebar is collapsed */
+.layout.sidebar-collapsed .navbar {
+  width: calc(100% - var(--sidebar-collapsed-width));
+}
+
+/* Navbar Elements */
 .navbar__toggle {
   width: 40px;
   height: 36px;
@@ -232,17 +312,13 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   justify-content: center;
   border-radius: 10px;
   color: var(--gray-900);
-  background: rgba(2,6,23,0.06);
-  transition: background 160ms ease, transform 120ms ease, box-shadow 160ms ease;
+  background: rgba(2, 6, 23, 0.06);
+  transition: background 160ms ease;
+  flex-shrink: 0;
 }
 
 .navbar__toggle:hover {
-  background: rgba(2,6,23,0.10);
-}
-
-.navbar__toggle:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-halo);
+  background: rgba(2, 6, 23, 0.10);
 }
 
 .toggle__bar {
@@ -253,7 +329,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border-radius: 2px;
   position: relative;
 }
-.toggle__bar + .toggle__bar { margin-top: 4px; }
+
+.toggle__bar + .toggle__bar {
+  margin-top: 4px;
+}
 
 .navbar__spacer {
   flex: 1;
@@ -267,12 +346,13 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   justify-content: center;
   border-radius: 10px;
   color: var(--muted);
-  background: rgba(2,6,23,0.05);
+  background: rgba(2, 6, 23, 0.05);
   transition: background 160ms ease, color 160ms ease;
 }
+
 .navbar__icon:hover {
   color: var(--gray-900);
-  background: rgba(2,6,23,0.08);
+  background: rgba(2, 6, 23, 0.08);
 }
 
 .navbar__profile {
@@ -282,10 +362,16 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   gap: 10px;
   padding: 6px 10px 6px 6px;
   border-radius: 12px;
-  background: #ffffff;
+  background: transparent;
   color: var(--gray-900);
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
+  transition: background 150ms ease;
 }
+
+.navbar__profile:hover {
+  background: rgba(2, 6, 23, 0.04);
+}
+
 .profile__avatar {
   display: inline-grid;
   place-items: center;
@@ -295,12 +381,15 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   background: var(--brand-soft);
   color: var(--brand-strong);
 }
+
 .profile__name {
   font-weight: 600;
   letter-spacing: .2px;
 }
 
-/* Notification Dropdown */
+/* =========================================
+   DROPDOWN & NOTIFICATIONS
+   ========================================= */
 .navbar__notification {
   position: relative;
 }
@@ -325,18 +414,14 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 14px);
   right: 0;
   width: 380px;
-  
-  /* PERBAIKAN: Ubah max-height agar responsif terhadap tinggi layar */
-  max-height: calc(100vh - 100px); 
-  /* Artinya: tinggi dropdown maksimal setinggi layar dikurangi area navbar */
-  
+  max-height: calc(100vh - 100px);
   background: #ffffff;
   border: 1px solid var(--border);
   border-radius: 14px;
-  box-shadow: 0 12px 32px rgba(2,6,23,0.12);
+  box-shadow: 0 12px 32px rgba(2, 6, 23, 0.12);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-8px);
@@ -350,17 +435,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
-}
-
-.notification-item {
-  display: flex;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 150ms ease;
-  text-decoration: none; /* Hilangkan garis bawah karena sekarang jadi <a> */
-  color: inherit;        /* Warna text mengikuti parent */
 }
 
 .dropdown-header {
@@ -386,31 +460,25 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   justify-content: center;
   border-radius: 8px;
   color: var(--gray-600);
-  transition: background 150ms ease, color 150ms ease;
 }
 
 .settings-link:hover {
-  background: rgba(2,6,23,0.06);
+  background: rgba(2, 6, 23, 0.06);
   color: var(--gray-900);
 }
 
 .dropdown-filters {
   display: flex;
-  gap: 8px; /* Beri jarak antar tombol */
-  padding: 12px 18px; /* Padding agar shadow/border tidak kepotong */
+  gap: 8px;
+  padding: 12px 18px;
   border-bottom: 1px solid var(--border);
-  
-  /* Logika Scroll Horizontal */
-  overflow-x: auto; 
-  flex-wrap: nowrap; /* Paksa satu baris */
-  
-  /* Sembunyikan scrollbar agar rapi */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none;  /* IE 10+ */
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
 }
 
 .dropdown-filters::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge */
+  display: none;
 }
 
 .filter-btn {
@@ -421,13 +489,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   color: var(--gray-700);
   background: transparent;
   border: 1px solid var(--border);
-  transition: all 150ms ease;
   white-space: nowrap;
   flex-shrink: 0;
-}
-
-.filter-btn:hover {
-  background: rgba(2,6,23,0.04);
+  cursor: pointer;
 }
 
 .filter-btn.active {
@@ -447,16 +511,13 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   gap: 12px;
   padding: 12px;
   border-radius: 10px;
-  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
   transition: background 150ms ease;
 }
 
 .notification-item:hover {
-  background: rgba(2,6,23,0.04);
-}
-
-.notification-item.hidden {
-  display: none;
+  background: rgba(2, 6, 23, 0.04);
 }
 
 .notification-icon {
@@ -470,17 +531,17 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 
 .notification-icon--info {
-  background: rgba(59,130,246,0.1);
+  background: rgba(59, 130, 246, 0.1);
   color: #2563eb;
 }
 
 .notification-icon--warning {
-  background: rgba(251,191,36,0.1);
+  background: rgba(251, 191, 36, 0.1);
   color: #d97706;
 }
 
 .notification-icon--danger {
-  background: rgba(220,38,38,0.1);
+  background: rgba(220, 38, 38, 0.1);
   color: #dc2626;
 }
 
@@ -496,10 +557,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   line-height: 1.4;
 }
 
-.notification-title .font-semibold {
-  font-weight: 600;
-}
-
 .notification-time {
   font-size: 12px;
   color: var(--muted);
@@ -512,11 +569,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 
 .view-all-link {
-  display: inline-block;
   font-size: 13px;
   font-weight: 600;
   color: var(--brand);
-  transition: color 150ms ease;
 }
 
 .view-all-link:hover {
@@ -527,7 +582,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   padding: 40px 20px;
   text-align: center;
 }
@@ -543,12 +597,14 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   color: var(--muted);
 }
 
-/* Content */
+/* =========================================
+   CONTENT & FOOTER
+   ========================================= */
 .content {
-  padding: 22px 22px 8px 22px;
+  padding: 22px;
+  flex: 1;
 }
 
-/* Footer */
 .footer {
   display: flex;
   align-items: center;
@@ -559,46 +615,61 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   color: var(--muted);
   font-size: 14px;
 }
-.footer .dot { opacity: 0.5; }
 
-/* Responsive */
-@media (max-width: 980px) {
+/* =========================================
+   RESPONSIVE LOGIC (PERBAIKAN UTAMA DISINI)
+   ========================================= */
+@media (max-width: 1024px) {
+  /* 1. Layout jadi 1 kolom penuh */
   .layout {
-    grid-template-columns: 84px 1fr;
+    grid-template-columns: 100%;
   }
-}
 
-@media (max-width: 640px) {
-  /* Off-canvas sidebar for mobile */
-  .layout {
-    grid-template-columns: 1fr;
+  /* FIX PENTING: Kembalikan Content ke Kolom 1 */
+  .main {
+    grid-column: 1; 
+    width: 100%;
   }
+
+  /* 2. Sidebar jadi Off-Canvas (Tersembunyi di kiri) */
   .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 280px;
+    width: var(--sidebar-width);
     transform: translateX(-100%);
-    transition: transform 220ms ease;
-    box-shadow: 0 0 0 1px var(--border), 0 24px 48px rgba(2,6,23,0.18);
+    box-shadow: 0 0 0 1px var(--border), 4px 0 24px rgba(0, 0, 0, 0.1);
   }
+
+  /* Saat toggle diklik (JS menambahkan class sidebar-open) */
   .layout.sidebar-open .sidebar {
     transform: translateX(0);
   }
+
+  /* 3. Navbar selalu Full Width dan Menempel Kiri */
+  .navbar {
+    width: 100% !important;
+    padding: 0 16px;
+    left: 0;
+    /* Pastikan navbar tetap di bawah backdrop jika sidebar terbuka */
+    z-index: 40; 
+  }
+
+  /* 4. Backdrop Logic */
   .backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(2,6,23,0.28);
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(2px);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 200ms ease;
+    transition: opacity 300ms ease;
+    z-index: 45; /* Di atas navbar, di bawah sidebar */
     display: block;
-    z-index: 15;
   }
+
   .layout.sidebar-open .backdrop {
     opacity: 1;
     pointer-events: auto;
   }
+
   body.no-scroll {
     overflow: hidden;
   }
@@ -606,132 +677,41 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   .navbar__profile .profile__name {
     display: none;
   }
+
   .content {
-    padding: 18px;
+    padding: 16px;
   }
 
-  /* Notification dropdown responsive */
+  /* Dropdown Mobile */
   .dropdown-menu {
-    width: calc(100vw - 32px);
+    position: fixed;
+    top: 70px;
     left: 50%;
     right: auto;
-    transform: translateX(-50%) translateY(-8px);
-    max-height: 480px;
-  }
-
-  .dropdown.is-open .dropdown-menu {
-    transform: translateX(-50%) translateY(0);
-  }
-
-  .dropdown-filters {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* --- TAMBAHAN KHUSUS NOTIFIKASI (Realtime) --- */
-.notification-item.unread {
-    background-color: var(--green-50); /* Hijau sangat muda agar beda dari yang read */
-}
-
-.notification-item.read {
-    background-color: transparent;
-}
-
-.notification-item.read:hover {
-    background-color: var(--gray-100);
-}
-
-.dot-unread {
-    width: 8px;
-    height: 8px;
-    background-color: var(--green-600);
-    border-radius: 50%;
-    margin-left: 8px;
-    align-self: center;
-    flex-shrink: 0;
-}
-
-@keyframes spin { 100% { transform: rotate(360deg); } }
-
-/* Responsive Logic Fix for Mobile & Tablet (iPad) */
-/* Kita ubah breakpoint dari 640px ke 1024px agar iPad masuk mode Mobile/Overlay */
-@media (max-width: 1024px) {
-  /* 1. Layout menjadi 1 kolom penuh */
-  .layout {
-    grid-template-columns: 1fr;
-  }
-
-  /* 2. Sidebar menjadi Off-Canvas (Melayang) */
-  .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 280px;
-    height: 100vh; /* Pastikan full height */
-    transform: translateX(-100%); /* Sembunyi ke kiri defaultnya */
-    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 0 1px var(--border), 4px 0 24px rgba(0,0,0,0.1);
-    z-index: 50; /* Harus di atas Navbar */
-  }
-
-  /* State ketika sidebar dibuka */
-  .layout.sidebar-open .sidebar {
-    transform: translateX(0);
-  }
-
-  /* 3. Backdrop (Latar gelap) */
-  .backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.6); /* Lebih gelap sedikit agar fokus */
-    backdrop-filter: blur(2px); /* Efek blur modern */
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 300ms ease;
-    z-index: 40; /* Di bawah sidebar, di atas konten lain */
-    display: block;
-  }
-
-  .layout.sidebar-open .backdrop {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  /* 4. Mencegah scroll pada body saat menu terbuka */
-  body.no-scroll {
-    overflow: hidden;
-  }
-
-  /* 5. Penyesuaian Konten */
-  .navbar__profile .profile__name {
-    display: none; /* Hemat ruang di header */
-  }
-  
-  .content {
-    padding: 16px; /* Padding lebih kecil */
-  }
-
-  /* 6. Penyesuaian Dropdown Notifikasi agar tidak off-screen */
-  .dropdown-menu {
-    position: fixed; /* Ubah ke fixed agar posisinya akurat di layar kecil */
-    top: 70px; /* Jarak dari atas */
-    left: 50%;
-    right: auto;
-    width: 90%; /* Lebar 90% layar */
+    width: 90%;
     max-width: 400px;
     transform: translateX(-50%) translateY(-10px);
-    max-height: calc(100vh - 100px);
   }
 
   .dropdown.is-open .dropdown-menu {
     transform: translateX(-50%) translateY(0);
   }
-  
-  /* Hilangkan efek collapsed "mini sidebar" di tablet, kita pakai full drawer */
+
+  /* Reset collapsed logic untuk mobile agar sidebar tetap utuh saat muncul */
   .layout.sidebar-collapsed .sidebar {
-     padding-left: 16px; 
-     padding-right: 16px;
+    width: var(--sidebar-width);
+    padding: 16px 12px; /* Reset padding */
+  }
+  
+  /* Pastikan elemen sidebar tetap terlihat di mobile meskipun class sidebar-collapsed ada */
+  .layout.sidebar-collapsed .nav__label,
+  .layout.sidebar-collapsed .brand__text,
+  .layout.sidebar-collapsed .logout__label {
+    display: block;
+    opacity: 1;
+  }
+  
+  .layout.sidebar-collapsed .brand__image {
+    height: 63px; /* Reset tinggi logo */
   }
 }
