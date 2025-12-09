@@ -6,6 +6,9 @@
   const emptyState = document.getElementById('emptyState');
   const tableWrapper = document.querySelector('.table-wrapper');
   
+  // [TAMBAHAN] Element Date Filter
+  const dateFilter = document.getElementById('dateFilterSelect');
+  
   // Statistik Elements
   const statsCards = document.getElementById('statsCards');
   const skeletonStats = document.getElementById('vpSkeletonStats');
@@ -21,12 +24,16 @@
 
   if (!table || !tbody || !search || !btnExport) return;
 
-  // 1. Ambil Event ID dari URL (mendukung UUID maupun Integer)
-  // Contoh URL: /admin/presensi/view/abc-123-uuid
-  const pathMatch = window.location.pathname.match(/\/presensi\/view\/([a-zA-Z0-9-]+)/);
-  const eventId = pathMatch ? decodeURIComponent(pathMatch[1]) : null;
+  // [PERBAIKAN] Ambil ID dari Variable Global (lebih aman) atau Fallback URL
+  let eventId = (typeof INITIAL_ACARA_ID !== 'undefined') ? INITIAL_ACARA_ID : null;
+  let selectedDate = (typeof INITIAL_DATE !== 'undefined') ? INITIAL_DATE : '';
 
-  // Format Helpers
+  if (!eventId) {
+      const pathMatch = window.location.pathname.match(/\/presensi\/view\/([^\/?#]+)/);
+      if (pathMatch) eventId = pathMatch[1];
+  }
+
+  // Format Helpers (ASLI ANDA)
   const formatDateTime = (dateStr) => {
     if (!dateStr) return '-';
     const d = new Date(dateStr);
@@ -45,13 +52,13 @@
     return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
   };
 
-  // State Management untuk Pagination
+  // State Management
   let presensiData = [];
   let keyword = '';
   let page = 1;
   let hasMore = true;
   let isLoading = false;
-  const perPage = 20; // Load 20 baris per request agar ringan
+  const perPage = 20;
 
   // --- Load Info Acara ---
   const loadEventInfo = () => {
@@ -74,7 +81,8 @@
     if (statsCards) statsCards.style.display = 'none';
     if (skeletonStats) skeletonStats.hidden = false;
 
-    fetch(`/admin/presensi/stats/${eventId}`, { headers: { 'Accept': 'application/json' } })
+    // [MODIFIKASI] Tambah ?date=...
+    fetch(`/admin/presensi/stats/${eventId}?date=${selectedDate}`, { headers: { 'Accept': 'application/json' } })
       .then(res => res.json())
       .then(json => {
         if (json?.success && json.data) {
@@ -99,9 +107,8 @@
     return statusMap[norm] || statusMap['?'];
   };
 
-  // --- Render Tabel ---
+  // --- Render Tabel (ASLI ANDA) ---
   const render = () => {
-    // Filter lokal (opsional jika ingin search di data yg sudah terload)
     const filtered = presensiData.filter(p => {
       const q = keyword.toLowerCase();
       return (
@@ -111,9 +118,8 @@
       );
     });
 
-    // Jika data kosong
     if (filtered.length === 0 && !isLoading) {
-      if (page === 1) { // Benar-benar kosong
+      if (page === 1) { 
           tbody.innerHTML = '';
           tableWrapper.style.display = 'none';
           emptyState.hidden = false;
@@ -124,11 +130,8 @@
     tableWrapper.style.display = 'block';
     emptyState.hidden = true;
 
-    // Render baris
     const html = filtered.map((p, idx) => {
-      const statusInfo = getStatusInfo(p.status_kehadiran);
-      // Hitung nomor urut absolut berdasarkan pagination jika mau (opsional), 
-      // disini kita pakai index array saja biar simpel.
+      // [FIX] Mengembalikan layout asli Anda (badge-time)
       return `
         <tr>
           <td class="text-center">${idx + 1}</td>
@@ -144,26 +147,27 @@
 
     tbody.innerHTML = html;
     
-    // Tambahkan loading spinner di bawah jika masih loading
     if (isLoading) {
         const loadingRow = `
           <tr class="is-loading">
-            <td colspan="6" class="text-center p-4">
-              <div class="sk sk-sm mx-auto"></div> Loading data...
+            <td colspan="7" class="text-center p-4">
+              <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+              </div>
             </td>
           </tr>`;
         tbody.insertAdjacentHTML('beforeend', loadingRow);
     }
   };
 
-  // --- Render Skeleton Awal ---
+  // --- Render Skeleton Awal (ASLI ANDA) ---
   const renderSkeleton = () => {
       if (tableWrapper) tableWrapper.style.display = 'none';
       if (emptyState) emptyState.hidden = true;
       if (skeletonTable) skeletonTable.hidden = false;
   };
 
-  // --- Load Data Utama (dengan Pagination) ---
+  // --- Load Data Utama (ASLI ANDA + FILTER DATE) ---
   const loadPresent = (reset = true) => {
     if (!eventId || isLoading) return;
     
@@ -171,14 +175,14 @@
         page = 1;
         presensiData = [];
         hasMore = true;
-        renderSkeleton(); // Tampilkan skeleton full hanya saat load pertama
+        renderSkeleton(); 
     }
 
     isLoading = true;
-    if (!reset) render(); // Render ulang untuk menampilkan spinner loading bawah
+    if (!reset) render(); 
 
-    // Panggil endpoint yang sudah diperbaiki di Controller
-    const url = `/admin/presensi/data/${eventId}?page=${page}&per_page=${perPage}`;
+    // [MODIFIKASI] URL dengan parameter date
+    const url = `/admin/presensi/data/${eventId}?page=${page}&per_page=${perPage}&date=${selectedDate}`;
     
     fetch(url, { headers: { 'Accept': 'application/json' } })
       .then(res => res.json())
@@ -189,16 +193,14 @@
           if (reset) {
             presensiData = rows;
           } else {
-            // Gabungkan data baru ke array lama
             presensiData = presensiData.concat(rows);
           }
 
-          // Cek pagination dari Laravel
           const p = json.pagination || {};
-          hasMore = !!p.has_more; // Convert to boolean
+          hasMore = !!p.has_more; 
           
           if (hasMore) {
-              page++; // Siapkan halaman berikutnya
+              page++; 
           }
         } else {
             hasMore = false;
@@ -215,35 +217,38 @@
       });
   };
 
-  // --- Search Handler ---
+  // --- Listeners ---
   search.addEventListener('input', (e) => {
     keyword = (e.target.value || '').trim();
-    // Jika search, idealnya request ke server (search server-side).
-    // Tapi untuk simplifikasi, kita filter data yg sudah ada dulu (client-side).
     render(); 
   });
 
-  // --- Export Handler ---
+  // [TAMBAHAN] Listener Dropdown Tanggal
+  if(dateFilter) {
+      dateFilter.addEventListener('change', (e) => {
+          selectedDate = e.target.value;
+          loadStats(); // Reload stats
+          loadPresent(true); // Reload tabel
+      });
+  }
+
   btnExport.addEventListener('click', () => {
     if (!eventId) return;
+    // Bisa tambah ?date= jika ingin export per tanggal
     const url = `/admin/presensi/export-document/${eventId}?print=1`;
     window.open(url, '_blank');
   });
 
-  // --- Infinite Scroll Listener ---
   window.addEventListener('scroll', () => {
     if (isLoading || !hasMore) return;
-    
-    // Cek apakah scroll sudah dekat bawah (sisa 200px)
     const nearBottom = (window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 200);
-    
     if (nearBottom) {
-      loadPresent(false); // Load page berikutnya (false = jangan reset)
+      loadPresent(false); 
     }
   }, { passive: true });
 
-  // --- Initial Load ---
+  // Init
   loadEventInfo();
   loadStats();
-  loadPresent(true); // Reset load
+  loadPresent(true); 
 })();

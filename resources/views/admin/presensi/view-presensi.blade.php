@@ -7,6 +7,11 @@
 @endpush
 
 @push('scripts')
+  {{-- [TAMBAHAN] Variable Global agar JS tidak error membaca ID/Tanggal --}}
+  <script>
+      const INITIAL_ACARA_ID = "{{ $acara->id_acara }}";
+      const INITIAL_DATE = "{{ $selectedDate }}";
+  </script>
   <script src="{{ asset('js/admin/view-presensi.js') }}" defer></script>
 @endpush
 
@@ -32,7 +37,21 @@
       </svg>
       <input id="presensiSearch" type="text" placeholder="Cari peserta..." autocomplete="off" aria-label="Cari peserta">
     </div>
+
     <div class="toolbar-actions">
+      {{-- [TAMBAHAN] Filter Tanggal --}}
+      @if(count($dates) > 1)
+        <select id="dateFilterSelect" class="form-select">
+            @foreach($dates as $date)
+                <option value="{{ $date }}" {{ $date == $selectedDate ? 'selected' : '' }}>
+                    {{ \Carbon\Carbon::parse($date)->translatedFormat('d M Y') }}
+                </option>
+            @endforeach
+        </select>
+      @else
+        <input type="hidden" id="dateFilterSelect" value="{{ $selectedDate }}">
+      @endif
+
       <button class="btn btn-success" id="btnExport">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -44,6 +63,7 @@
     </div>
   </div>
 
+  {{-- Stats Cards (Kode Asli Anda) --}}
   <div class="stats-cards" id="statsCards">
     <div class="stat-card">
       <div class="stat-icon stat-icon-primary">
@@ -100,34 +120,10 @@
   </div>
 
   <div id="vpSkeletonStats" class="skeleton-stats">
-    <div class="skeleton-stat-card">
-      <div class="skeleton-icon"></div>
-      <div class="skeleton-lines">
-        <div class="skeleton-line w-60"></div>
-        <div class="skeleton-line w-40"></div>
-      </div>
-    </div>
-    <div class="skeleton-stat-card">
-      <div class="skeleton-icon"></div>
-      <div class="skeleton-lines">
-        <div class="skeleton-line w-60"></div>
-        <div class="skeleton-line w-40"></div>
-      </div>
-    </div>
-    <div class="skeleton-stat-card">
-      <div class="skeleton-icon"></div>
-      <div class="skeleton-lines">
-        <div class="skeleton-line w-60"></div>
-        <div class="skeleton-line w-40"></div>
-      </div>
-    </div>
-    <div class="skeleton-stat-card">
-      <div class="skeleton-icon"></div>
-      <div class="skeleton-lines">
-        <div class="skeleton-line w-60"></div>
-        <div class="skeleton-line w-40"></div>
-      </div>
-    </div>
+    <div class="skeleton-stat-card"><div class="skeleton-icon"></div><div class="skeleton-lines"><div class="skeleton-line w-60"></div><div class="skeleton-line w-40"></div></div></div>
+    <div class="skeleton-stat-card"><div class="skeleton-icon"></div><div class="skeleton-lines"><div class="skeleton-line w-60"></div><div class="skeleton-line w-40"></div></div></div>
+    <div class="skeleton-stat-card"><div class="skeleton-icon"></div><div class="skeleton-lines"><div class="skeleton-line w-60"></div><div class="skeleton-line w-40"></div></div></div>
+    <div class="skeleton-stat-card"><div class="skeleton-icon"></div><div class="skeleton-lines"><div class="skeleton-line w-60"></div><div class="skeleton-line w-40"></div></div></div>
   </div>
 
   <div class="table-wrapper">
@@ -152,52 +148,17 @@
         </tr>
       </thead>
       <tbody>
-        <!-- JS will render rows here -->
-      </tbody>
+        </tbody>
     </table>
   </div>
 
+  {{-- Skeleton Table (Kode Asli Anda) --}}
   <div id="vpSkeletonTable" class="skeleton-table">
-    <div class="skeleton-row">
-      <div class="skeleton-cell w-10"></div>
-      <div class="skeleton-cell w-25"></div>
-      <div class="skeleton-cell w-20"></div>
-      <div class="skeleton-cell w-20"></div>
-      <div class="skeleton-cell w-15"></div>
-      <div class="skeleton-cell w-20"></div>
-    </div>
-    <div class="skeleton-row">
-      <div class="skeleton-cell w-10"></div>
-      <div class="skeleton-cell w-25"></div>
-      <div class="skeleton-cell w-20"></div>
-      <div class="skeleton-cell w-20"></div>
-      <div class="skeleton-cell w-15"></div>
-      <div class="skeleton-cell w-20"></div>
-    </div>
-    <div class="skeleton-row">
-      <div class="skeleton-cell w-10"></div>
-      <div class="skeleton-cell w-25"></div>
-      <div class="skeleton-cell w-20"></div>
-      <div class="skeleton-cell w-20"></div>
-      <div class="skeleton-cell w-15"></div>
-      <div class="skeleton-cell w-20"></div>
-    </div>
-    <div class="skeleton-row">
-      <div class="skeleton-cell w-10"></div>
-      <div class="skeleton-cell w-25"></div>
-      <div class="skeleton-cell w-20"></div>
-      <div class="skeleton-cell w-20"></div>
-      <div class="skeleton-cell w-15"></div>
-      <div class="skeleton-cell w-20"></div>
-    </div>
-    <div class="skeleton-row">
-      <div class="skeleton-cell w-10"></div>
-      <div class="skeleton-cell w-25"></div>
-      <div class="skeleton-cell w-20"></div>
-      <div class="skeleton-cell w-20"></div>
-      <div class="skeleton-cell w-15"></div>
-      <div class="skeleton-cell w-20"></div>
-    </div>
+    <div class="skeleton-row"><div class="skeleton-cell w-10"></div><div class="skeleton-cell w-25"></div><div class="skeleton-cell w-20"></div><div class="skeleton-cell w-20"></div><div class="skeleton-cell w-15"></div><div class="skeleton-cell w-20"></div></div>
+    <div class="skeleton-row"><div class="skeleton-cell w-10"></div><div class="skeleton-cell w-25"></div><div class="skeleton-cell w-20"></div><div class="skeleton-cell w-20"></div><div class="skeleton-cell w-15"></div><div class="skeleton-cell w-20"></div></div>
+    <div class="skeleton-row"><div class="skeleton-cell w-10"></div><div class="skeleton-cell w-25"></div><div class="skeleton-cell w-20"></div><div class="skeleton-cell w-20"></div><div class="skeleton-cell w-15"></div><div class="skeleton-cell w-20"></div></div>
+    <div class="skeleton-row"><div class="skeleton-cell w-10"></div><div class="skeleton-cell w-25"></div><div class="skeleton-cell w-20"></div><div class="skeleton-cell w-20"></div><div class="skeleton-cell w-15"></div><div class="skeleton-cell w-20"></div></div>
+    <div class="skeleton-row"><div class="skeleton-cell w-10"></div><div class="skeleton-cell w-25"></div><div class="skeleton-cell w-20"></div><div class="skeleton-cell w-20"></div><div class="skeleton-cell w-15"></div><div class="skeleton-cell w-20"></div></div>
   </div>
 
   <div class="empty-state" id="emptyState" hidden>

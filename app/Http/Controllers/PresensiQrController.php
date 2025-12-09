@@ -13,7 +13,7 @@ use App\Services\QrTokenService;
 use App\Services\WhatsAppService;
 use Illuminate\Support\Carbon;
 use App\Notifications\KirimQrEmailNotification;
-use App\Notifications\SystemNotification; // Pastikan import ini ada
+use App\Notifications\SystemNotification; 
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Log;
 
@@ -38,7 +38,7 @@ class PresensiQrController extends Controller
             $peserta = Peserta::where('id_acara', $eventId)->where('nip', $nip)->firstOrFail();
             
             // Pastikan data presensi ada (untuk ID referensi)
-            $presensi = Presensi::firstOrCreate(
+            Presensi::firstOrCreate(
                 ['id_acara' => $acara->id_acara, 'nip' => $peserta->nip],
                 ['status_kehadiran' => '?', 'mode_presensi' => 'Tradisional']
             );
@@ -97,10 +97,8 @@ class PresensiQrController extends Controller
         }
 
         try {
-            // [PERBAIKAN 1]: Mengubah payload QR Email agar sama dengan ID Card
-            // Format: ID_ACARA#NIP
+            // Format QR: ID_ACARA#NIP
             $qrPayload = $acara->id_acara . '#' . $peserta->nip;
-            
             $qrDataUri = $this->qrGenerationService->generateSvgDataUri($qrPayload);
             
             Notification::route('mail', $peserta->email)
@@ -179,8 +177,6 @@ class PresensiQrController extends Controller
         $peserta = Peserta::where('id_acara', $acara)->where('nip', (string) $data['n'])->firstOrFail();
         $acaraModel = Acara::where('id_acara', $acara)->firstOrFail();
         
-        // [PERBAIKAN 1]: Mengubah payload View QR (via Link) agar sama dengan ID Card
-        // Format: ID_ACARA#NIP
         $qrPayload = $acaraModel->id_acara . '#' . $peserta->nip;
         
         $dateText = Carbon::parse($acaraModel->waktu_mulai)->translatedFormat('d M Y');
@@ -201,19 +197,18 @@ class PresensiQrController extends Controller
     public function streamQr(string $acara, string $token)
     {
         $data = $this->qrTokenService->parseQrToken($acara, $token);
-        // Pastikan format stream juga mengikuti format ID Card jika dipakai di tempat lain
         $payload = $acara . '#' . (string)$data['n'];
         $svgData = $this->qrGenerationService->generateSvg($payload);
         return response($svgData, 200)->header('Content-Type', 'image/svg+xml');
     }
 
     // =========================================================================
-    // 4. CONFIRM ATTENDANCE (SCAN OFFLINE) - FIX NOTIFIKASI DISINI
+    // 4. CONFIRM ATTENDANCE (LOGIKA KETAT + MULTI HARI)
     // =========================================================================
 
     public function confirmAttendance(Request $request): JsonResponse
     {
-        // Validasi Input
+        // 1. Validasi Input
         $data = $request->validate([
             'id_presensi' => ['nullable', 'string'],
             'nip_manual' => ['nullable', 'string'],
@@ -221,22 +216,26 @@ class PresensiQrController extends Controller
             'current_acara_id' => ['required', 'exists:acara,id_acara'], 
         ]);
 
-        $inputCode = trim($data['id_presensi'] ?? $data['nip_manual']);
+        // Sanitasi: Hapus Enter/Spasi (Penting untuk Scanner Fisik)
+        $rawInput = $data['id_presensi'] ?? $data['nip_manual'];
+        $inputCode = trim(str_replace(["\r", "\n"], '', $rawInput));
+        
         $currentAcaraId = $data['current_acara_id'];
         
-        // --- 1. SETUP WAKTU (Akurat ke Asia/Jakarta) ---
+        // --- 2. SETUP WAKTU (Akurat ke Asia/Jakarta) ---
         $now = Carbon::now('Asia/Jakarta');
         $acara = Acara::where('id_acara', $currentAcaraId)->firstOrFail();
         
-        // Pastikan acara berlangsung hari ini (Cek Tanggal)
+        // A. Cek Rentang Tanggal Acara
         $startDate = Carbon::parse($acara->waktu_mulai)->startOfDay();
         $endDate = Carbon::parse($acara->waktu_selesai)->endOfDay();
         
         if (!$now->between($startDate, $endDate)) {
-            return response()->json(['success' => false, 'message' => 'Acara tidak berlangsung hari ini.'], 422);
+            return response()->json(['success' => false, 'message' => 'Absensi Gagal: Acara tidak berlangsung hari ini.'], 422);
         }
 
-        // Ambil Jam-nya saja dari Database, lalu tempel ke Tanggal Hari Ini
+        // B. Konstruksi Jadwal Harian (Reset jam setiap hari)
+        // Kita ambil JAM dari database, tapi TANGGAL-nya pakai HARI INI ($now)
         $todayStr = $now->format('Y-m-d'); 
         
         $jamMulai = Carbon::parse($acara->waktu_mulai)->format('H:i:s');
@@ -251,91 +250,94 @@ class PresensiQrController extends Controller
             $jadwalIstirahatSelesai = Carbon::parse("$todayStr $jamIstirahat", 'Asia/Jakarta');
         }
 
-        // Ambil toleransi, pastikan integer (Default 15 menit jika null)
+        // C. Setup Toleransi & Buffer
         $toleransi = (int) ($acara->toleransi_menit ?? 15);
+        $bufferBuka = 60; // Absen DIBUKA 60 menit sebelum jam mulai
 
-        // --- 2. CEK SESI & TOLERANSI (LOGIC KETAT) ---
+        // --- 3. LOGIKA SESI PRESENSI (KETAT) ---
         
         $jenisPresensi = null;
         $pesanSesi = '';
 
-        // A. Cek Pulang
+        // Cek Pulang
         if ($now->gte($jadwalPulang)) {
              $jenisPresensi = 'pulang';
              $pesanSesi = 'Absen Pulang';
         }
-        // B. Cek Istirahat
+        // Cek Istirahat (Jika ada)
         elseif ($jadwalIstirahatSelesai && $now->gte($jadwalIstirahatSelesai)) {
             $batasIstirahat = $jadwalIstirahatSelesai->copy()->addMinutes($toleransi);
             
             if ($now->gt($batasIstirahat)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Gagal: Waktu toleransi kembali istirahat ($toleransi menit) sudah habis. Batas: " . $batasIstirahat->format('H:i') . " WIB"
-                ], 422);
+                return response()->json(['success' => false, 'message' => "Gagal: Waktu toleransi istirahat habis ($toleransi menit)."], 422);
             }
-            
             $jenisPresensi = 'istirahat';
             $pesanSesi = 'Absen Kembali Istirahat';
         }
-        // C. Cek Masuk
-        elseif ($now->gte($jadwalMasuk)) {
+        // Cek Masuk (Pagi)
+        else {
+            $waktuBukaAbsen = $jadwalMasuk->copy()->subMinutes($bufferBuka);
             $batasMasuk = $jadwalMasuk->copy()->addMinutes($toleransi);
 
+            // LOGIKA 1: Cegah Kepagian
+            if ($now->lt($waktuBukaAbsen)) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Presensi belum dibuka. Harap tunggu hingga pukul ' . $waktuBukaAbsen->format('H:i') . ' WIB.'
+                ], 422);
+            }
+
+            // LOGIKA 2: Cegah Terlambat
             if ($now->gt($batasMasuk)) {
                 return response()->json([
-                    'success' => false,
-                    'message' => "Gagal: Waktu toleransi masuk ($toleransi menit) sudah habis. Batas: " . $batasMasuk->format('H:i') . " WIB"
+                    'success' => false, 
+                    'message' => "Gagal: Waktu toleransi masuk habis. Batas: " . $batasMasuk->format('H:i') . " WIB"
                 ], 422);
             }
 
             $jenisPresensi = 'masuk';
             $pesanSesi = 'Absen Masuk';
         }
-        // D. Belum Waktunya (Kepagian)
-        else {
-             if ($now->diffInMinutes($jadwalMasuk) <= 60) {
-                 $jenisPresensi = 'masuk';
-                 $pesanSesi = 'Absen Masuk (Awal)';
-             } else {
-                 return response()->json([
-                     'success' => false, 
-                     'message' => 'Absen belum dibuka. Jam masuk: ' . $jadwalMasuk->format('H:i')
-                 ], 422);
-             }
-        }
 
-        // --- 3. IDENTIFIKASI PESERTA ---
+        // --- 4. CARI PESERTA ---
         
         $peserta = null;
+        // Cek Format ID Card Baru: "ID_ACARA#NIP"
         if (str_contains($inputCode, '#')) {
             $parts = explode('#', $inputCode);
             if (count($parts) >= 2 && trim($parts[0]) == $currentAcaraId) {
                 $peserta = Peserta::where('id_acara', $currentAcaraId)->where('nip', trim($parts[1]))->first();
             }
-        } else {
+        } 
+        // Cek Format NIP Polos
+        else {
             $peserta = Peserta::where('id_acara', $currentAcaraId)->where('nip', $inputCode)->first();
+            
+            // Fallback: Cek UUID Presensi (QR Aplikasi)
             if (!$peserta && strlen($inputCode) > 20) { 
-                $cekPresensi = Presensi::with('peserta')->where('id_presensi', $inputCode)->where('id_acara', $currentAcaraId)->first();
+                $cekPresensi = Presensi::with('peserta')
+                    ->where('id_presensi', $inputCode)
+                    ->where('id_acara', $currentAcaraId)->first();
                 if ($cekPresensi) $peserta = $cekPresensi->peserta;
             }
         }
 
         if (!$peserta) {
-            return response()->json(['success' => false, 'message' => 'Peserta tidak ditemukan.'], 404);
+            return response()->json(['success' => false, 'message' => 'Peserta tidak ditemukan di acara ini.'], 404);
         }
 
-        // --- 4. SIMPAN DATA ---
+        // --- 5. SIMPAN DATA (KUNCI UTAMA MULTI HARI) ---
         
+        // Kita gunakan whereDate($todayStr) agar data hari ini TIDAK tercampur dengan hari kemarin/besok
         $existingLog = Presensi::where('id_acara', $currentAcaraId)
             ->where('nip', $peserta->nip)
             ->where('jenis_presensi', $jenisPresensi)
-            ->whereDate('waktu_presensi', $todayStr)
+            ->whereDate('waktu_presensi', $todayStr) 
             ->first();
 
         if ($existingLog) {
              if ($existingLog->status_kehadiran == 'Hadir') {
-                 return response()->json(['success' => false, 'message' => "Anda sudah $pesanSesi sebelumnya."], 409);
+                 return response()->json(['success' => false, 'message' => "Anda sudah $pesanSesi hari ini."], 409);
              } else {
                  $presensiSimpan = $existingLog;
              }
@@ -358,24 +360,19 @@ class PresensiQrController extends Controller
 
         $presensiSimpan->save();
 
-        // --- 5. NOTIFIKASI REAL-TIME (FIXED ROUTE) ---
+        // --- 6. NOTIFIKASI ---
         try {
-            $user = auth()->user(); // Petugas yang melakukan scan
+            $user = auth()->user(); 
             if ($user) {
-                // [PERBAIKAN UTAMA DISINI]
-                // Ubah dari 'acara.presensi' (Halaman Scan) menjadi 'view-presensi' (Halaman Daftar Kehadiran)
+                // Link diarahkan ke view presensi detail
                 $linkDetail = route('view-presensi', $currentAcaraId);
-
                 $user->notify(new SystemNotification(
-                    'absensi',
-                    'info',
-                    "Presensi $pesanSesi: <b>{$peserta->nama}</b>",
-                    $linkDetail // Link sekarang mengarah ke View Presensi (Daftar Kehadiran)
+                    'absensi', 'info', 
+                    "Presensi $pesanSesi: <b>{$peserta->nama}</b>", 
+                    $linkDetail
                 ));
             }
-        } catch (\Exception $e) {
-            Log::error('Gagal kirim notif scan: ' . $e->getMessage());
-        }
+        } catch (\Exception $e) { Log::error('Gagal kirim notif scan: ' . $e->getMessage()); }
 
         return response()->json([
             'success' => true,
