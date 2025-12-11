@@ -74,6 +74,7 @@
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .form-select {
@@ -98,6 +99,22 @@
 
 .form-select:focus {
   border-color: var(--brand);
+}
+
+/* --- MODIFIKASI: Styling Date Inputs --- */
+.input-date {
+    padding-right: 12px; /* Remove arrow padding gap since input date handles its own */
+    min-width: auto;
+    width: 140px;
+    color: var(--gray-700);
+    /* Reset background image for date inputs on some browsers if needed */
+    background-image: none;
+}
+
+.date-separator {
+    color: var(--gray-500);
+    font-size: 0.85rem;
+    font-weight: 500;
 }
 
 /* Grid Layout */
@@ -344,8 +361,13 @@
     width: 100%;
   }
 
-  .form-select {
+  .form-select, .input-date {
     flex: 1;
+    width: 100% !important; /* Force full width on mobile */
+  }
+
+  .date-separator {
+    display: none; /* Hide separator on mobile if stacked */
   }
 
   .cards {

@@ -141,7 +141,7 @@ class LaporanController extends Controller
         ]);
     }
 
-    // --- HELPER EXPORT FULL DATE (DIPERBAIKI) ---
+    // --- HELPER EXPORT FULL DATE ---
     private function getFullExportData($id)
     {
         $acara = Acara::where('id_acara', $id)->firstOrFail();
@@ -166,8 +166,6 @@ class LaporanController extends Controller
         // 3. Grouping: [NIP][TANGGAL] => Collection Logs
         $presensiMap = [];
         foreach ($rawPresensi as $log) {
-            // FIX: Gunakan substring langsung agar sama persis dengan 'whereDate' database
-            // Jangan pakai Carbon::parse() disini agar tidak kena efek timezone shift
             $dateKey = substr($log->waktu_presensi, 0, 10); 
             $presensiMap[$log->nip][$dateKey][] = $log;
         }

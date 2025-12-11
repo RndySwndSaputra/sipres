@@ -32,7 +32,7 @@
 
     {{-- 2. Filter Group --}}
     <div class="filter-group">
-        {{-- Filter Status (BARU) --}}
+        {{-- Filter Status --}}
         <select id="filterStatus" class="form-select">
             <option value="">Semua Status</option>
             <option value="Akan Datang">Akan Datang</option>
@@ -40,6 +40,7 @@
             <option value="Selesai">Selesai</option>
         </select>
 
+        {{-- Filter Jenis --}}
         <select id="filterJenis" class="form-select">
             <option value="">Semua Jenis</option>
             <option value="Offline">Offline</option>
@@ -47,23 +48,16 @@
             <option value="Kombinasi">Hybrid</option>
         </select>
 
-        <select id="filterBulan" class="form-select">
-            <option value="">Semua Bulan</option>
-            <option value="1">Januari</option>
-            <option value="2">Februari</option>
-            <option value="3">Maret</option>
-            <option value="4">April</option>
-            <option value="5">Mei</option>
-            <option value="6">Juni</option>
-            <option value="7">Juli</option>
-            <option value="8">Agustus</option>
-            <option value="9">September</option>
-            <option value="10">Oktober</option>
-            <option value="11">November</option>
-            <option value="12">Desember</option>
-        </select>
+        {{-- MODIFIKASI: Filter Tanggal (Range) --}}
+        <div class="date-input-wrapper">
+            <input type="date" id="filterStartDate" class="form-select input-date" placeholder="Dari Tanggal" title="Dari Tanggal">
+        </div>
+        
+        <span class="date-separator">s/d</span>
 
-        <input type="number" id="filterTahun" class="form-select" placeholder="Tahun" min="2000" max="2100" style="width: 90px;">
+        <div class="date-input-wrapper">
+            <input type="date" id="filterEndDate" class="form-select input-date" placeholder="Sampai Tanggal" title="Sampai Tanggal">
+        </div>
     </div>
 
   </div>

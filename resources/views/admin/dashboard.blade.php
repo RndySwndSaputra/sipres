@@ -10,7 +10,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="{{ asset('js/admin/dashboard.js') }}" defer></script>
   
-  {{-- Pass data Chart Complex ke JS --}}
   <script>
       var chartDataConfig = {
           labels: @json($chartLabels),
@@ -28,15 +27,37 @@
       <h1>Dashboard Operasional</h1>
       <p class="subtitle">Monitoring performa acara & presensi real-time</p>
     </div>
-    <div class="date-badge">
-        {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y') }}
-    </div>
+    
+    {{-- MODIFIKASI UX: FILTER TANGGAL FULL CLICK AREA --}}
+    <form action="{{ route('dashboard') }}" method="GET" id="filterForm">
+        {{-- Kita tambahkan ID 'dateFilterBox' untuk ditangkap JS --}}
+        <div class="date-display" id="dateFilterBox">
+            
+            {{-- Icon Kalender --}}
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #64748b;">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            
+            {{-- Teks Label --}}
+            <span class="current-date-label">{{ $dateLabel }}</span>
+
+            {{-- Input Hidden tapi ada di DOM untuk menampung value --}}
+            {{-- Kita sembunyikan visualnya tapi fungsinya dipanggil via JS --}}
+            <input type="date" 
+                   name="date" 
+                   id="realDateInput" 
+                   class="date-picker-hidden" 
+                   value="{{ $reqDate }}" 
+                   onchange="document.getElementById('filterForm').submit()">
+        </div>
+    </form>
   </div>
 
-  {{-- SECTION CARDS --}}
+  {{-- SECTION CARDS (TIDAK ADA PERUBAHAN) --}}
   <section class="cards">
-    
-    {{-- CARD 1: TOTAL PESERTA --}}
     <article class="card">
       <div class="card__top">
         <div class="card__icon icon-green">
@@ -55,17 +76,16 @@
         @else
             <span class="trend neutral">-</span>
         @endif
-        <span style="font-size: 11px;">Pertumbuhan vs bulan lalu</span>
+        <span style="font-size: 11px;">Aktivitas vs Kemarin</span>
       </div>
     </article>
 
-    {{-- CARD 2: TOTAL ACARA --}}
     <article class="card">
       <div class="card__top">
         <div class="card__icon icon-purple">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
-        <span class="card__label">Total Acara</span>
+        <span class="card__label">Acara Hari Ini</span>
       </div>
       <div class="card__value">
         <span class="value" data-counter="{{ $totalAcara }}">{{ number_format($totalAcara) }}</span>
@@ -83,24 +103,23 @@
       </div>
     </article>
 
-    {{-- CARD 3: METODE PRESENSI --}}
     <article class="card">
       <div class="card__top">
         <div class="card__icon icon-blue">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
         </div>
-        <span class="card__label">Metode Presensi</span>
+        <span class="card__label">Kehadiran Hari Ini</span>
       </div>
       <div class="card__value">
         <span class="value" data-counter="{{ $totalHadir }}">{{ number_format($totalHadir) }}</span>
-        <span class="unit">Kehadiran</span>
+        <span class="unit">Orang</span>
       </div>
       <div class="card__breakdown">
           <div class="bd-item" style="width: 50%">
-              <span class="dot masuk"></span> Web/Online: <strong>{{ $hadirViaOnline }}</strong>
+              <span class="dot masuk"></span> Web: <strong>{{ $hadirViaOnline }}</strong>
           </div>
           <div class="bd-item" style="width: 50%">
-              <span class="dot offline"></span> Scan/Offline: <strong>{{ $hadirViaScan }}</strong>
+              <span class="dot offline"></span> Scan: <strong>{{ $hadirViaScan }}</strong>
           </div>
       </div>
     </article>
@@ -109,7 +128,7 @@
   {{-- CHART SECTION --}}
   <div class="panel mb-4">
       <div class="panel-header">
-          <h3>Statistik Kepadatan Acara vs Kehadiran ({{ date('Y') }})</h3>
+          <h3>Trend Kehadiran 7 Hari Terakhir (Berakhir {{ \Carbon\Carbon::parse($reqDate)->isoFormat('D MMM Y') }})</h3>
       </div>
       <div class="panel-body" style="padding: 20px; height: 320px;">
           <canvas id="comboChart"></canvas>
@@ -117,10 +136,9 @@
   </div>
 
   <div class="dashboard-grid">
-    {{-- KOLOM KIRI: TABEL (SUDAH DIPERBAIKI) --}}
     <div class="panel">
         <div class="panel-header">
-            <h3>Statistik Kehadiran Per Acara</h3>
+            <h3>Statistik Acara Hari Ini</h3>
             <a href="{{ url('/admin/acara') }}" class="link-action">Lihat Semua</a>
         </div>
         <div class="table-wrapper">
@@ -128,9 +146,9 @@
                 <thead>
                     <tr>
                         <th width="30%">Nama Acara</th>
-                        <th width="10%">Jenis Acara</th>
-                        <th width="10%" class="text-center">Peserta</th>
-                        <th width="30%" class="text-center">Status Kehadiran</th>
+                        <th width="10%">Jenis</th>
+                        <th width="10%" class="text-center">Target</th>
+                        <th width="30%" class="text-center">Status Hari Ini</th>
                         <th width="20%">Persentase</th>
                     </tr>
                 </thead>
@@ -147,26 +165,22 @@
                                 {{ $mode }}
                             </span>
                         </td>
-                        
                         <td class="text-center">
                             <span class="num-badge badge-target">{{ $acara->total_target }}</span>
                         </td>
-
                         <td class="text-center">
                             @if($acara->total_hadir == 0)
                                 <span class="status-empty">Belum ada absen</span>
                             @else
                                 <div class="status-group">
-                                    <div class="status-item in" title="Sedang Hadir/Masuk">
+                                    <div class="status-item in" title="Hadir/Masuk">
                                         <span class="icon">⬇️</span>
                                         <span class="count">{{ $acara->jml_masuk }}</span>
                                     </div>
-                                    
-                                    <div class="status-item rest" title="Sedang Istirahat">
+                                    <div class="status-item rest" title="Istirahat">
                                         <span class="icon">☕</span>
                                         <span class="count">{{ $acara->jml_istirahat }}</span>
                                     </div>
-
                                     <div class="status-item out" title="Sudah Pulang">
                                         <span class="icon">⬆️</span>
                                         <span class="count">{{ $acara->jml_pulang }}</span>
@@ -174,7 +188,6 @@
                                 </div>
                             @endif
                         </td>
-
                         <td>
                             <div class="progress-container">
                                 <div class="progress-info">
@@ -182,14 +195,14 @@
                                 </div>
                                 <div class="progress-track">
                                     <div class="progress-fill {{ $acara->persentase >= 80 ? 'high' : ($acara->persentase >= 50 ? 'med' : 'low') }}" 
-                                        style="width: {{ $acara->persentase }}%"></div>
+                                         style="width: {{ $acara->persentase }}%"></div>
                                 </div>
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 20px; color: #94a3b8;">Belum ada data acara.</td>
+                        <td colspan="5" style="text-align: center; padding: 20px; color: #94a3b8;">Tidak ada acara aktif pada tanggal ini.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -197,10 +210,9 @@
         </div>
     </div>
 
-    {{-- KOLOM KANAN: LOG AKTIVITAS (TETAP) --}}
     <div class="panel">
         <div class="panel-header">
-            <h3>Aktivitas Terbaru</h3>
+            <h3>Aktivitas Hari Ini</h3>
             <div class="live-dot"><span class="blink"></span> Live</div>
         </div>
         <div class="activity-list">
@@ -221,7 +233,7 @@
                 <span class="activity-time">{{ $log->updated_at->format('H:i') }}</span>
             </div>
             @empty
-            <div style="padding: 30px; text-align: center; color: #cbd5e1;">Belum ada scan masuk.</div>
+            <div style="padding: 30px; text-align: center; color: #cbd5e1;">Belum ada aktivitas pada tanggal ini.</div>
             @endforelse
         </div>
     </div>

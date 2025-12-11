@@ -30,7 +30,7 @@
         </div>
     </div>
 
-    {{-- Filter Group --}}
+    {{-- Filter Group (MODIFIED: Date Range) --}}
     <div class="filter-group">
         <select id="filterJenis" class="form-select">
             <option value="">Semua Jenis</option>
@@ -39,23 +39,17 @@
             <option value="Kombinasi">Hybrid</option>
         </select>
 
-        <select id="filterBulan" class="form-select">
-            <option value="">Semua Bulan</option>
-            <option value="1">Januari</option>
-            <option value="2">Februari</option>
-            <option value="3">Maret</option>
-            <option value="4">April</option>
-            <option value="5">Mei</option>
-            <option value="6">Juni</option>
-            <option value="7">Juli</option>
-            <option value="8">Agustus</option>
-            <option value="9">September</option>
-            <option value="10">Oktober</option>
-            <option value="11">November</option>
-            <option value="12">Desember</option>
-        </select>
+        {{-- Start Date --}}
+        <div class="date-input-wrapper">
+            <input type="date" id="filterStartDate" class="form-select input-date" placeholder="Dari Tanggal" title="Dari Tanggal">
+        </div>
         
-        <input type="number" id="filterTahun" class="form-select input-tahun" placeholder="Tahun" min="2000" max="2100">
+        <span class="date-separator">s/d</span>
+
+        {{-- End Date --}}
+        <div class="date-input-wrapper">
+            <input type="date" id="filterEndDate" class="form-select input-date" placeholder="Sampai Tanggal" title="Sampai Tanggal">
+        </div>
 
         <button id="btnPrint" class="btn-print" title="Cetak Rekap">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -96,7 +90,7 @@
         <line x1="3" y1="10" x2="21" y2="10"></line>
       </svg>
       <p class="empty-message">Tidak ada acara ditemukan</p>
-      <p class="empty-hint">Coba ubah filter atau kata kunci pencarian</p>
+      <p class="empty-hint">Coba ubah filter atau rentang tanggal</p>
     </div>
 
     {{-- LOADING --}}

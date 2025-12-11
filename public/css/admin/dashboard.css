@@ -12,17 +12,10 @@
 .page-header {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 24px;
-  /* [OPSIONAL] Sticky Header */
-  /* position: sticky;
-  top: 70px; 
-  z-index: 9;
-  background: var(--bg);
-  padding-bottom: 10px; 
-  */
 }
 
 .page-title h1 {
@@ -38,14 +31,48 @@
   font-size: 14px;
 }
 
-.date-badge {
-  background: #f1f5f9;
-  color: var(--muted);
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
+/* --- [UPDATED] STYLING PILIH TANGGAL (UX FIX) --- */
+.date-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    position: relative; 
+    transition: all 0.2s;
+    cursor: pointer; /* Menunjukkan bisa diklik */
+    user-select: none; /* Supaya teks tidak terblok saat double click */
 }
+
+.date-display:hover {
+    border-color: var(--brand-strong);
+    background: #f8fafc;
+    box-shadow: 0 2px 4px rgba(45, 138, 110, 0.1);
+}
+
+.current-date-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-800);
+}
+
+/* Input ini disembunyikan secara visual, tapi dipanggil via JS */
+.date-picker-hidden {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+/* ----------------------------------------------- */
 
 /* --- CARDS GRID --- */
 .cards {
@@ -238,13 +265,13 @@
 /* Table Styles - DENGAN STICKY HEADER FIX */
 .table-wrapper {
   overflow-x: auto;
-  max-height: 500px; /* Batasi tinggi tabel agar bisa discroll internal */
+  max-height: 500px;
   overflow-y: auto;
 }
 
 .custom-table {
   width: 100%;
-  border-collapse: separate; /* Required for sticky th */
+  border-collapse: separate; 
   border-spacing: 0;
   font-size: 14px;
 }
@@ -258,14 +285,11 @@
   font-weight: 600;
   text-transform: uppercase;
   border-bottom: 1px solid var(--border);
-  
-  /* --- FIX TABLE HEADER SCROLLING --- */
   position: sticky;
   top: 0;
-  z-index: 5; /* Di atas konten tabel */
-  /* Pastikan background solid agar tidak transparan saat discroll */
+  z-index: 5;
   background-color: #f8fafc; 
-  box-shadow: 0 1px 0 var(--border); /* Ganti border-bottom dengan shadow */
+  box-shadow: 0 1px 0 var(--border);
 }
 
 .custom-table td {

@@ -136,24 +136,35 @@
     font-size: 0.875rem;
     cursor: pointer;
     outline: none;
+    transition: border-color 0.2s;
+    min-width: 130px;
+}
+
+/* Khusus Select dropdown ada arrownya */
+select.form-select {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 14px;
-    transition: border-color 0.2s;
-    min-width: 130px;
 }
 
 .form-select:focus {
     border-color: var(--brand);
 }
 
-/* Styling Input Tahun */
-.input-tahun {
-    width: 90px;
+/* --- Styling Date Inputs (BARU) --- */
+.input-date {
     padding-right: 12px;
-    background-image: none;
+    min-width: auto;
+    width: 140px;
+    color: var(--gray-700);
+}
+
+.date-separator {
+    color: var(--gray-500);
+    font-size: 0.85rem;
+    font-weight: 500;
 }
 
 /* Styling Tombol Cetak */
@@ -183,7 +194,6 @@
    4. TABEL LAPORAN (CORE)
    ========================================= */
 
-/* PERBAIKAN: Menambahkan position relative agar loading overlay pas */
 .content-area {
     position: relative;
     min-height: 240px;
@@ -442,22 +452,20 @@
     font-size: 0.9rem;
 }
 
-/* PERBAIKAN: Loading Overlay Disamakan dengan Presensi */
 .loading-overlay {
     position: absolute;
     inset: 0;
-    display: grid;       /* Ganti ke Grid seperti Presensi */
-    place-items: center; /* Center */
-    background: rgba(255, 255, 255, 0.7); /* Opacity 0.7 seperti Presensi */
+    display: grid;       
+    place-items: center; 
+    background: rgba(255, 255, 255, 0.7); 
     z-index: 50;
-    /* Blur dihapus agar sama persis dengan presensi */
 }
 
 .spinner {
-    width: 40px;  /* Ukuran naik jadi 40px */
+    width: 40px;  
     height: 40px; 
     border-radius: 50%;
-    border: 3px solid rgba(2,6,23,0.1); /* Warna dasar abu muda */
+    border: 3px solid rgba(2,6,23,0.1); 
     border-top-color: var(--brand);
     animation: spin 0.8s linear infinite;
 }
@@ -474,47 +482,73 @@
 }
 
 @media print {
+    /* HIDE SEMUA ELEMEN UI WEB */
     nav,
     aside,
     .page-header,
     .laporan-toolbar,
     .table-wrapper,
-    .loading-overlay {
+    .loading-overlay,
+    .empty-state {  /* <--- TAMBAHKAN INI AGAR IKON KOSONG HILANG SAAT PRINT */
         display: none !important;
     }
 
+    /* TAMPILKAN HANYA AREA CETAK */
     .print-only {
         display: block !important;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
     }
 
+    /* Reset Margin Body */
     body {
         background: white !important;
         font-family: 'Times New Roman', serif;
         margin: 0;
-        padding: 20px;
+        padding: 0;
+        visibility: hidden; /* Sembunyikan body utama */
     }
 
+    /* Hanya visibilitas area print yang aktif */
+    .print-only * {
+        visibility: visible;
+    }
+
+    /* Styling Header Print */
     .print-header {
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
+        padding-top: 20px;
     }
     
     .print-header h2 {
         margin: 0;
-        font-size: 16pt;
+        font-size: 14pt;
         text-transform: uppercase;
+        color: #000;
     }
 
+    .print-header p {
+        margin: 5px 0;
+        font-size: 10pt;
+        color: #000;
+    }
+
+    /* Styling Table Print */
     .table-print {
         width: 100%;
         border-collapse: collapse;
-        font-size: 11pt;
+        font-size: 10pt;
+        color: #000;
+        margin-top: 10px;
     }
 
     .table-print th,
     .table-print td {
         border: 1px solid #000;
-        padding: 8px;
+        padding: 6px 8px;
         text-align: left;
         vertical-align: top;
     }
@@ -523,7 +557,7 @@
         text-align: center;
         font-weight: bold;
         background-color: #f0f0f0 !important;
+        -webkit-print-color-adjust: exact; /* Agar background abu tercetak */
         print-color-adjust: exact;
-        -webkit-print-color-adjust: exact;
     }
 }

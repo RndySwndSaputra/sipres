@@ -5,8 +5,8 @@
     const tableContainer = document.getElementById('tableContainer');
     const search = document.getElementById('laporanSearch');
     const filterJenis = document.getElementById('filterJenis');
-    const filterBulan = document.getElementById('filterBulan');
-    const filterTahun = document.getElementById('filterTahun');
+    const filterStartDate = document.getElementById('filterStartDate');
+    const filterEndDate = document.getElementById('filterEndDate');
     const btnPrint = document.getElementById('btnPrint');
     const emptyState = document.getElementById('emptyState');
     const loadingOverlay = document.getElementById('laporanLoading');
@@ -14,9 +14,10 @@
 
     if (!tableBody || !search) return;
 
-    // --- HELPER ZONA WAKTU WIB (Diambil dari Peserta.js) ---
-    
-    // 1. Ambil Waktu Sekarang (WIB) dalam format string YYYY-MM-DDTHH:mm
+    // VARIABLE GLOBAL LOKAL UNTUK MENYIMPAN HASIL FILTER SAAT INI
+    let currentFilteredData = []; 
+
+    // --- HELPER ZONA WAKTU WIB ---
     const getNowWIB = () => {
         const now = new Date();
         const parts = new Intl.DateTimeFormat('en-CA', {
@@ -28,24 +29,18 @@
         return `${part('year')}-${part('month')}-${part('day')}T${part('hour')}:${part('minute')}`;
     };
 
-    // 2. Normalisasi String Waktu dari Database ke format YYYY-MM-DDTHH:mm
     const normalizeToInput = (value) => {
         if (!value) return '';
-        // Regex ini mengambil YYYY-MM-DD dan HH:mm tanpa peduli Timezone (Z)
         const m = String(value).match(/(\d{4}-\d{2}-\d{2})[T\s](\d{2}):(\d{2})/);
         return m ? `${m[1]}T${m[2]}:${m[3]}` : '';
     };
 
-    // 3. Logic Status yang Akurat (String Comparison)
     const getStatus = (start, end) => {
         try {
             const nowWIB = getNowWIB();
             const startStr = normalizeToInput(start);
             const endStr = normalizeToInput(end);
-            
-            // Jika tanggal selesai tidak ada, anggap Akan Datang
             if (!endStr) return { label: 'Akan Datang', class: 'badge-blue' };
-
             if (nowWIB < startStr) return { label: 'Akan Datang', class: 'badge-blue' };
             if (nowWIB > endStr) return { label: 'Selesai', class: 'badge-gray' };
             return { label: 'Berlangsung', class: 'badge-green' };
@@ -54,8 +49,7 @@
         }
     };
 
-    // --- Helpers Format Tampilan (Tanpa new Date() agar jam tidak geser) ---
-
+    // --- Helpers Format Tampilan ---
     const dateFromInput = (value) => {
         const norm = normalizeToInput(value);
         if (!norm) return '-';
@@ -72,8 +66,8 @@
         const s = dateFromInput(start);
         const e = dateFromInput(end);
         if (s === '-' || e === '-') return s;
-        if (s === e) return s; // Jika tanggal sama
-        return `${s} - ${e}`;  // Jika beda tanggal
+        if (s === e) return s;
+        return `${s} - ${e}`; 
     };
 
     const timeFromInput = (value) => {
@@ -95,10 +89,10 @@
     const render = () => {
         const keyword = (search.value || '').toLowerCase().trim();
         const vJenis = filterJenis.value;
-        const vBulan = filterBulan.value;
-        const vTahun = filterTahun.value;
+        const vStart = filterStartDate.value;
+        const vEnd = filterEndDate.value;
 
-        // Filtering
+        // Filtering Logic
         const filtered = acaraData.filter(a => {
             const matchKey = (a.nama_acara || '').toLowerCase().includes(keyword) || 
                              (a.lokasi || '').toLowerCase().includes(keyword);
@@ -107,41 +101,41 @@
             if (vJenis) matchJenis = a.mode_presensi === vJenis;
 
             let matchDate = true;
-            if (vBulan || vTahun) {
-                // Parsing manual dari string agar aman
-                const dateStr = normalizeToInput(a.waktu_mulai); 
-                const m = dateStr.match(/^(\d{4})-(\d{2})/);
-                if (m) {
-                    const year = Number(m[1]);
-                    const month = Number(m[2]);
-                    if (vBulan && month != vBulan) matchDate = false;
-                    if (vTahun && year != vTahun) matchDate = false;
+            if (vStart || vEnd) {
+                const eventStartFull = normalizeToInput(a.waktu_mulai);
+                if (eventStartFull) {
+                    const eventDateStr = eventStartFull.split('T')[0];
+                    if (vStart && eventDateStr < vStart) matchDate = false;
+                    if (vEnd && eventDateStr > vEnd) matchDate = false;
                 }
             }
             return matchKey && matchJenis && matchDate;
         });
 
+        // SIMPAN DATA TERFILTER KE VARIABLE GLOBAL LOKAL
+        currentFilteredData = filtered;
+
         // Toggle View State
         if (filtered.length === 0) {
             tableContainer.style.display = 'none';
             emptyState.hidden = false;
+            // Kita juga kosongkan tabel print agar bersih jika user memaksa print via browser
+            if(printTableBody) printTableBody.innerHTML = '';
             return;
         }
+        
         tableContainer.style.display = 'block';
         emptyState.hidden = true;
 
-        // 1. Build Table HTML
+        // 1. Render Web Table
         tableBody.innerHTML = filtered.map((a, index) => {
-            // Gunakan fungsi getStatus baru yang berbasis string comparison
             const status = getStatus(a.waktu_mulai, a.waktu_selesai);
             
-            // Logic Badge Jenis
             let jenisBadge = '';
             if (a.mode_presensi === 'Online') jenisBadge = '<span class="jenis-badge jenis-online">Online</span>';
             else if (a.mode_presensi === 'Kombinasi') jenisBadge = '<span class="jenis-badge jenis-hybrid">Hybrid</span>';
             else jenisBadge = '<span class="jenis-badge jenis-offline">Offline</span>';
 
-            // Logic Link
             let linkElement = '';
             if ((a.mode_presensi === 'Online' || a.mode_presensi === 'Kombinasi')) {
                 if (a.link_meeting) {
@@ -155,7 +149,6 @@
                 }
             }
 
-            // Logic Lokasi
             const lokasiText = (a.lokasi && a.mode_presensi !== 'Online') 
                 ? `<div class="lokasi-text">
                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 
@@ -204,7 +197,7 @@
             `;
         }).join('');
 
-        // 2. Render Tabel Print
+        // 2. Render Print Table (Disiapkan untuk cetak)
         if (printTableBody) {
             printTableBody.innerHTML = filtered.map((a, idx) => {
                 let info = a.mode_presensi === 'Offline' ? a.lokasi : `Link: ${a.link_meeting || '-'}`;
@@ -221,9 +214,14 @@
             }).join('');
         }
 
+        // Update Info Header Cetak
         if (printFilterInfo) {
-            const bulanTxt = vBulan ? document.querySelector(`#filterBulan option[value="${vBulan}"]`).text : 'Semua Bulan';
-            printFilterInfo.textContent = `Periode: ${bulanTxt} ${vTahun || ''} | Jenis: ${vJenis || 'Semua'}`;
+            let periodText = 'Semua Waktu';
+            if (vStart && vEnd) periodText = `${dateFromInput(vStart)} s/d ${dateFromInput(vEnd)}`;
+            else if (vStart) periodText = `Dari ${dateFromInput(vStart)}`;
+            else if (vEnd) periodText = `Sampai ${dateFromInput(vEnd)}`;
+            
+            printFilterInfo.textContent = `Periode: ${periodText} | Jenis: ${vJenis || 'Semua'}`;
         }
     };
 
@@ -233,7 +231,6 @@
         try {
             const res = await fetch('/admin/acara/data', { headers: { 'Accept': 'application/json' } });
             const json = await res.json();
-            // Validasi data array
             acaraData = (json && json.success && Array.isArray(json.data)) ? json.data : [];
             render();
         } catch (e) {
@@ -247,10 +244,22 @@
 
     search.addEventListener('input', render);
     filterJenis.addEventListener('change', render);
-    filterBulan.addEventListener('change', render);
-    filterTahun.addEventListener('input', render);
+    filterStartDate.addEventListener('change', render);
+    filterEndDate.addEventListener('change', render);
 
-    if (btnPrint) btnPrint.addEventListener('click', () => window.print());
+    // --- VALIDASI SAAT KLIK CETAK (PERBAIKAN LOGIC) ---
+    if (btnPrint) {
+        btnPrint.addEventListener('click', () => {
+            // Cek apakah ada data yang sedang ditampilkan
+            if (currentFilteredData.length === 0) {
+                // Tampilkan pesan error (bisa diganti SweetAlert jika pakai)
+                alert("Tidak ada data acara pada periode atau filter yang dipilih.\nSilakan ubah filter tanggal untuk menampilkan data sebelum mencetak.");
+                return; // Batalkan proses cetak
+            }
+            // Jika ada data, jalankan print
+            window.print();
+        });
+    }
 
     fetchData();
 })();

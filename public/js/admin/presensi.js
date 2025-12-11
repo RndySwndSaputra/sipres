@@ -1,10 +1,12 @@
 (() => {
   const acaraGrid = document.getElementById('acaraGrid');
   const search = document.getElementById('presensiSearch');
-  const filterStatus = document.getElementById('filterStatus'); // BARU
+  const filterStatus = document.getElementById('filterStatus');
   const filterJenis = document.getElementById('filterJenis');
-  const filterBulan = document.getElementById('filterBulan');
-  const filterTahun = document.getElementById('filterTahun');
+  // MODIFIKASI: Ambil elemen tanggal
+  const filterStartDate = document.getElementById('filterStartDate');
+  const filterEndDate = document.getElementById('filterEndDate');
+
   const emptyState = document.getElementById('emptyState');
   const loadingOverlay = document.getElementById('presensiLoading');
 
@@ -75,17 +77,18 @@
 
   const render = () => {
     const keyword = (search.value || '').toLowerCase().trim();
-    const valStatus = filterStatus ? filterStatus.value : ''; // Value Status
+    const valStatus = filterStatus ? filterStatus.value : '';
     const valJenis = filterJenis ? filterJenis.value : '';
-    const valBulan = filterBulan ? filterBulan.value : '';
-    const valTahun = filterTahun ? filterTahun.value : '';
+    // MODIFIKASI: Ambil value tanggal
+    const valStart = filterStartDate ? filterStartDate.value : '';
+    const valEnd = filterEndDate ? filterEndDate.value : '';
 
     const filtered = acara.filter(a => {
       // 1. Filter Search
       const matchKey = (a.nama_acara || '').toLowerCase().includes(keyword) ||
                        (a.lokasi || '').toLowerCase().includes(keyword);
 
-      // 2. Filter Status (BARU)
+      // 2. Filter Status
       let matchStatus = true;
       if (valStatus) {
           const currentStatus = getEventStatus(a.waktu_mulai, a.waktu_selesai).label;
@@ -98,12 +101,15 @@
          matchJenis = (a.mode_presensi === valJenis);
       }
 
-      // 4. Filter Waktu (Bulan & Tahun)
+      // 4. MODIFIKASI: Filter Tanggal (Range)
       let matchDate = true;
-      if (valBulan || valTahun) {
-          const dateObj = new Date(a.waktu_mulai);
-          if (valBulan && (dateObj.getMonth() + 1) != valBulan) matchDate = false;
-          if (valTahun && dateObj.getFullYear() != valTahun) matchDate = false;
+      if (valStart || valEnd) {
+          const eventStartFull = normalizeToInput(a.waktu_mulai);
+          if (eventStartFull) {
+              const eventDateStr = eventStartFull.split('T')[0];
+              if (valStart && eventDateStr < valStart) matchDate = false;
+              if (valEnd && eventDateStr > valEnd) matchDate = false;
+          }
       }
 
       return matchKey && matchStatus && matchJenis && matchDate;
@@ -122,15 +128,12 @@
       const isOnline = a.mode_presensi === 'Online';
       const isHybrid = a.mode_presensi === 'Kombinasi';
 
-      // Data Lokasi & Link
       const lokasiStr = a.lokasi || '-';
       const linkUrl = a.link_meeting || '#';
 
-      // --- ICON DEFINITION ---
       const iconLoc = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
       const iconLink = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>`;
 
-      // --- LOGIKA DISPLAY LOKASI / LINK ---
       let infoLokasiHtml = '';
 
       if (isOnline) {
@@ -217,10 +220,11 @@
 
   // Event Listeners
   search.addEventListener('input', render);
-  if(filterStatus) filterStatus.addEventListener('change', render); // Listener Status
+  if(filterStatus) filterStatus.addEventListener('change', render);
   if(filterJenis) filterJenis.addEventListener('change', render);
-  if(filterBulan) filterBulan.addEventListener('change', render);
-  if(filterTahun) filterTahun.addEventListener('input', render);
+  // MODIFIKASI: Listener untuk tanggal
+  if(filterStartDate) filterStartDate.addEventListener('change', render);
+  if(filterEndDate) filterEndDate.addEventListener('change', render);
 
   acaraGrid.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-action="view"]');

@@ -1,5 +1,26 @@
 (() => {
-  // 1. ANIMASI COUNTER (TETAP)
+  // --- 1. UX FIX: DATE PICKER TRIGGER ---
+  // Ini akan membuat seluruh kotak 'date-display' bisa diklik untuk membuka kalender
+  const dateBox = document.getElementById('dateFilterBox');
+  const dateInput = document.getElementById('realDateInput');
+
+  if (dateBox && dateInput) {
+      dateBox.addEventListener('click', (e) => {
+          // Mencegah looping event jika input itu sendiri yang diklik
+          if (e.target !== dateInput) {
+              try {
+                  // Metode modern: Langsung buka picker
+                  dateInput.showPicker();
+              } catch (err) {
+                  // Fallback untuk browser lama: Focus & Click
+                  dateInput.focus();
+                  dateInput.click();
+              }
+          }
+      });
+  }
+
+  // --- 2. ANIMASI COUNTER ---
   const counters = Array.from(document.querySelectorAll('[data-counter]'));
   if (counters.length) {
       const formatNumber = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -35,15 +56,14 @@
       counters.forEach(el => observer.observe(el));
   }
 
-  // 2. [PERBAIKAN] COMBO CHART (ACARA VS KEHADIRAN)
+  // --- 3. COMBO CHART ---
   const ctx = document.getElementById('comboChart');
   
   if (ctx && typeof Chart !== 'undefined' && typeof chartDataConfig !== 'undefined') {
       
-      // Setup Gradient untuk Line Chart
       let chartContext = ctx.getContext('2d');
       let gradient = chartContext.createLinearGradient(0, 0, 0, 400);
-      gradient.addColorStop(0, 'rgba(45, 138, 110, 0.2)'); // Brand Color Transparent
+      gradient.addColorStop(0, 'rgba(45, 138, 110, 0.2)'); 
       gradient.addColorStop(1, 'rgba(45, 138, 110, 0)');
 
       new Chart(ctx, {
@@ -52,26 +72,24 @@
               labels: chartDataConfig.labels,
               datasets: [
                   {
-                      // Dataset 1: Kehadiran (Line Chart)
                       type: 'line',
                       label: 'Total Kehadiran',
                       data: chartDataConfig.datasets.hadir,
-                      borderColor: '#2d8a6e', // Brand Strong
+                      borderColor: '#2d8a6e', 
                       backgroundColor: gradient,
                       borderWidth: 2,
                       pointBackgroundColor: '#fff',
                       pointBorderColor: '#2d8a6e',
                       pointRadius: 4,
                       fill: true,
-                      tension: 0.4, // Membuat garis melengkung halus
+                      tension: 0.4, 
                       yAxisID: 'y'
                   },
                   {
-                      // Dataset 2: Jumlah Acara (Bar Chart)
                       type: 'bar',
-                      label: 'Jumlah Acara',
+                      label: 'Jumlah Acara Aktif',
                       data: chartDataConfig.datasets.acara,
-                      backgroundColor: '#cbd5e1', // Abu-abu lembut
+                      backgroundColor: '#cbd5e1', 
                       borderRadius: 4,
                       barThickness: 20,
                       yAxisID: 'y1'
@@ -105,23 +123,23 @@
                   }
               },
               scales: {
-                  x: {
-                      grid: { display: false }
-                  },
+                  x: { grid: { display: false } },
                   y: {
                       type: 'linear',
                       display: true,
                       position: 'left',
                       title: { display: true, text: 'Peserta Hadir', color: '#2d8a6e', font: {size: 11, weight: 'bold'} },
-                      grid: { borderDash: [4, 4], color: '#f1f5f9' }
+                      grid: { borderDash: [4, 4], color: '#f1f5f9' },
+                      beginAtZero: true
                   },
                   y1: {
                       type: 'linear',
                       display: true,
                       position: 'right',
                       title: { display: true, text: 'Jml Acara', color: '#64748b', font: {size: 11} },
-                      grid: { drawOnChartArea: false }, // Agar grid tidak tumpang tindih
-                      ticks: { stepSize: 1 }
+                      grid: { drawOnChartArea: false }, 
+                      ticks: { stepSize: 1 },
+                      beginAtZero: true
                   }
               }
           }
