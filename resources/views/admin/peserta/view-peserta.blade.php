@@ -68,7 +68,7 @@
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
           <path d="M3 12l18-9-9 18-2-7-7-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span class="btn-label-responsive">Kirim QR</span>
+        <span class="btn-label-responsive">Kirim QR (Massal)</span>
       </a>
 
       <button class="btn btn-primary" id="btnAddPeserta">
