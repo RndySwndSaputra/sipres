@@ -127,7 +127,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::get('/laporan/stats/{id}', 'getStats')->name('laporan.stats');
         
         // Export Excel Saja (PDF Dihapus)
-        Route::get('/laporan/export/excel/{id}', 'exportExcel')->name('laporan.export.excel');
+        Route::get('/laporan/export/excel/{id}', 'exportExcel')->name('laporan.export.laporan');
     });
 
     // --- NOTIFIKASI ---

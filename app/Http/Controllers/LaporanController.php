@@ -187,7 +187,7 @@ class LaporanController extends Controller
         $data = $this->getFullExportData($id);
         $fileName = 'Rekap_Laporan_' . Str::slug($data['acara']->nama_acara) . '_' . date('Ymd') . '.xls';
 
-        $content = view('admin.document-template.export_excel', $data)->render();
+        $content = view('admin.document-template.export-laporan', $data)->render();
 
         return Response::make($content, 200, [
             'Content-Type' => 'application/vnd.ms-excel',

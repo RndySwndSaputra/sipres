@@ -252,7 +252,9 @@ class PresensiQrController extends Controller
 
         // C. Setup Toleransi & Buffer
         $toleransi = (int) ($acara->toleransi_menit ?? 15);
-        $bufferBuka = 60; // Absen DIBUKA 60 menit sebelum jam mulai
+        
+        // [PERBAIKAN] Absen dibuka lebih awal sejumlah menit toleransi sesuai request
+        $bufferBuka = $toleransi; 
 
         // --- 3. LOGIKA SESI PRESENSI (KETAT) ---
         

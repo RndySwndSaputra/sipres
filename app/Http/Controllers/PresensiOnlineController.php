@@ -44,15 +44,18 @@ class PresensiOnlineController extends Controller
         // Jadwal Masuk Hari Ini
         $jadwalMasuk = Carbon::parse($now->format('Y-m-d') . ' ' . $jamMulai, 'Asia/Jakarta');
         
-        // 3. Cek Kepagian (Opsional: misal absen dibuka 60 menit sebelum acara)
-        // Jika user absen 2 jam sebelum acara, tolak.
-        if ($now->diffInMinutes($jadwalMasuk, false) > 60) {
-             return "Presensi belum dibuka. Silakan tunggu hingga mendekati jam " . $jadwalMasuk->format('H:i') . " WIB.";
+        // 3. Cek Kepagian (Opsional)
+        // [PERBAIKAN] Toleransi diambil dulu untuk dipakai sebagai buffer buka
+        $toleransi = (int) ($acara->toleransi_menit ?? 0); 
+
+        // Waktu buka = Jadwal Masuk - Toleransi Menit
+        $waktuBuka = $jadwalMasuk->copy()->subMinutes($toleransi);
+
+        if ($now->lt($waktuBuka)) {
+             return "Presensi belum dibuka. Silakan tunggu hingga pukul " . $waktuBuka->format('H:i') . " WIB.";
         }
 
         // 4. Cek Toleransi Keterlambatan
-        $toleransi = $acara->toleransi_menit ?? 0; 
-        
         if ($toleransi > 0) {
             // Batas akhir = Jam Mulai Hari Ini + Menit Toleransi
             $batasAkhir = $jadwalMasuk->copy()->addMinutes($toleransi);

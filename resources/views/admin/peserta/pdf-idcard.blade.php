@@ -33,10 +33,17 @@
                     <div class="peserta-nip">{{ $p->nip }}</div>
 
                     <div class="qr-container">
-                        @if(!empty($p->qr_image))
-                            <img src="data:image/svg+xml;base64,{{ $p->qr_image }}" class="qr-img">
-                        @endif
-                    </div>
+                    @if(!empty($p->qr_image))
+                        {{-- Deteksi format otomatis --}}
+                        <?php 
+                            // Jika controller bilang svg, pakai header svg. Kalau tidak, png.
+                            $tipe = ($p->qr_format ?? 'png') === 'svg' ? 'svg+xml' : 'png'; 
+                        ?>
+                        
+                        {{-- Tampilkan gambar dengan header yang sesuai --}}
+                        <img src="data:image/{{ $tipe }};base64,{{ $p->qr_image }}" class="qr-img">
+                    @endif
+                </div>
                     <div class="scan-hint">Scan QR untuk Presensi</div>
                 </div>
 

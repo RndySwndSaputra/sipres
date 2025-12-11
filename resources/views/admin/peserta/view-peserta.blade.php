@@ -32,38 +32,43 @@
       </svg>
       <input id="pesertaSearch" type="text" placeholder="Cari peserta..." autocomplete="off" aria-label="Cari peserta">
     </div>
+    
     <div class="toolbar-actions">
-      <button class="btn btn-outline" id="btnPilihPegawai" title="Pilih dari Data Pegawai">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        <span>Pilih Pegawai</span>
-      </button>
+      <div class="dropdown-container">
+        <button class="btn btn-outline btn-icon" id="btnToggleMenu" type="button" title="Menu Lainnya">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+            <span>Menu</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 4px;"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        
+        <div class="dropdown-content" id="actionDropdown">
+            <button class="dropdown-item" id="btnPilihPegawai" type="button">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>Pilih dari Pegawai</span>
+            </button>
+            
+            <button class="dropdown-item" id="btnImportPeserta" type="button">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="M12 3v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 11l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <span>Import Excel/CSV</span>
+            </button>
 
-      <button class="btn btn-outline" id="btnImportPeserta" title="Import dari CSV">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-          <path d="M12 3v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M8 11l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M4 17v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        <span>Import</span>
-      </button>
-      
-      <button class="btn btn-outline" id="btnDraftHistory">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-        </svg>
-        <span>Draft / Riwayat</span>
-      </button>
+            <button class="dropdown-item" id="btnDraftHistory" type="button">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                <span>Draft / Riwayat</span>
+            </button>
 
-      <button class="btn btn-outline" id="btnPrintQr" title="Cetak ID Card" style="display: none;">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
-        <span>Cetak QR</span>
-      </button>
-      
+            <button class="dropdown-item" id="btnPrintQr" type="button" style="display: none;"> 
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+                <span>Cetak QR Code</span>
+            </button>
+        </div>
+      </div>
+
       <a class="btn btn-primary" id="btnSendQrMass" href="{{ route('peserta.send-qr', ['acara' => $id]) }}" title="Kirim QR Absen Massal" style="display: none;">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
           <path d="M3 12l18-9-9 18-2-7-7-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span>Kirim QR Absen (Massal)</span>
+        <span class="btn-label-responsive">Kirim QR</span>
       </a>
 
       <button class="btn btn-primary" id="btnAddPeserta">

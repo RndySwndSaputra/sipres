@@ -12,6 +12,25 @@
   const btnSendQrMass = document.getElementById('btnSendQrMass');
   const btnDraft = document.getElementById('btnDraftHistory'); // TOMBOL DRAFT
   
+  // Dropdown Menu Logic (NEW)
+  const btnToggleMenu = document.getElementById('btnToggleMenu');
+  const actionDropdown = document.getElementById('actionDropdown');
+
+  if(btnToggleMenu && actionDropdown) {
+      // Toggle dropdown click
+      btnToggleMenu.addEventListener('click', (e) => {
+          e.stopPropagation();
+          actionDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown if clicked outside
+      document.addEventListener('click', (e) => {
+          if (!actionDropdown.contains(e.target) && !btnToggleMenu.contains(e.target)) {
+              actionDropdown.classList.remove('show');
+          }
+      });
+  }
+
   // Layout Elements
   const emptyState = document.getElementById('emptyState');
   const tableWrapper = document.querySelector('.table-wrapper');
@@ -159,7 +178,8 @@
              if(btnPrint) btnPrint.style.display = 'none';
              if(btnSendQrMass) btnSendQrMass.style.display = 'none';
           } else {
-             if(btnPrint) btnPrint.style.display = 'inline-flex';
+             // Logic khusus: tombol ini sekarang ada di dalam dropdown, tapi logic displaynya sama
+             if(btnPrint) btnPrint.style.display = 'flex'; 
              if(btnSendQrMass) {
                  btnSendQrMass.style.display = 'inline-flex';
                  btnSendQrMass.href = `/admin/peserta/send-qr/${eventId}`;
@@ -241,6 +261,9 @@
   const openModalGeneric = (modalEl) => {
       modalEl.classList.add('is-open');
       document.body.classList.add('no-scroll');
+      
+      // Tutup dropdown menu jika terbuka saat modal dibuka (UX better)
+      if(actionDropdown) actionDropdown.classList.remove('show');
   };
 
   if (btnAdd) btnAdd.addEventListener('click', () => { 

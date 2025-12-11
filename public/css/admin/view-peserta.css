@@ -24,7 +24,7 @@ body.no-scroll {
     align-items: flex-end;
     justify-content: space-between;
     gap: 16px;
-    margin-bottom: 24px; /* Sedikit lebih lebar */
+    margin-bottom: 24px;
 }
 
 .page-title {
@@ -67,8 +67,9 @@ body.no-scroll {
 .peserta-toolbar {
     display: flex;
     align-items: center;
+    justify-content: space-between; /* Pastikan jarak tersebar */
     gap: 12px;
-    margin-bottom: 24px; /* Space vertikal lebih lega */
+    margin-bottom: 24px;
     flex-wrap: wrap;
 }
 
@@ -84,6 +85,9 @@ body.no-scroll {
     flex: 1;
     min-width: 240px;
     transition: all 0.2s;
+    /* Agar tinggi search sama dengan tombol */
+    height: 44px; 
+    box-sizing: border-box;
 }
 
 .search:focus-within {
@@ -100,10 +104,76 @@ body.no-scroll {
     font-size: 14px;
 }
 
+/* =========================================
+   TOOLBAR & DROPDOWN MODIFICATIONS (NEW)
+   ========================================= */
+
+/* Pastikan Toolbar Actions Rata Kanan & Rapi */
 .toolbar-actions {
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-left: auto; /* Dorong ke kanan jika search di kiri */
+}
+
+/* Styling Container Dropdown */
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* Isi Dropdown (Hidden by default) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 110%; /* Muncul sedikit di bawah tombol */
+    background-color: #ffffff;
+    min-width: 220px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    z-index: 100;
+    padding: 6px;
+    animation: fadeInDropdown 0.2s ease;
+}
+
+/* Class untuk memunculkan dropdown via JS */
+.dropdown-content.show {
+    display: block;
+}
+
+/* Item di dalam Dropdown */
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    background: transparent;
+    text-align: left;
+    font-size: 14px;
+    color: var(--gray-700);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.dropdown-item:hover {
+    background-color: #f1f5f9;
+    color: var(--gray-900);
+}
+
+.dropdown-item svg {
+    color: var(--gray-500);
+}
+
+/* Animasi Dropdown */
+@keyframes fadeInDropdown {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* Stats Cards */
@@ -118,7 +188,7 @@ body.no-scroll {
     background: #ffffff;
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 24px; /* Padding lebih besar */
+    padding: 24px;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -172,7 +242,7 @@ body.no-scroll {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 0.6rem 1rem;
+    padding: 0 16px; /* Ubah padding vertical jadi 0, handle pake height */
     border-radius: 8px;
     border: 1px solid var(--border);
     background: #ffffff;
@@ -182,6 +252,11 @@ body.no-scroll {
     font-weight: 600;
     transition: all 0.2s;
     text-decoration: none;
+    
+    /* FIX: Agar semua tombol (Import, Draft, dll) tingginya SAMA RATA */
+    height: 44px; 
+    box-sizing: border-box;
+    white-space: nowrap; 
 }
 
 .btn:hover {
@@ -211,9 +286,10 @@ body.no-scroll {
 }
 
 .btn-sm {
-    padding: 6px 12px;
+    padding: 0 12px;
     font-size: 12px;
     border-radius: 6px;
+    height: 32px; /* Fixed height untuk tombol kecil */
 }
 
 /* Table - DIRAPIHKAN SECARA VERTIKAL */
@@ -224,6 +300,8 @@ body.no-scroll {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    /* Penting untuk layout responsif */
+    position: relative;
 }
 
 .table {
@@ -241,14 +319,15 @@ body.no-scroll {
     text-align: left;
     font-weight: 600;
     color: var(--gray-700);
-    padding: 16px 20px; /* Padding header diperbesar */
+    padding: 16px 20px;
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    white-space: nowrap;
 }
 
 .table td {
-    padding: 16px 20px; /* Padding sel diperbesar agar vertikal lebih lega */
+    padding: 16px 20px;
     border-bottom: 1px solid var(--border);
     color: var(--gray-900);
     vertical-align: middle;
@@ -290,14 +369,14 @@ body.no-scroll {
 .modal {
     display: none;
     z-index: 50;
-    position: fixed; /* Fix modal positioning */
+    position: fixed;
     inset: 0;
-    align-items: center; /* Center Vertically */
-    justify-content: center; /* Center Horizontally */
+    align-items: center;
+    justify-content: center;
 }
 
 .modal.is-open {
-    display: flex; /* Changed from block to flex for centering */
+    display: flex;
 }
 
 .modal__backdrop {
@@ -633,7 +712,7 @@ body.no-scroll {
 }
 
 /* =========================================
-   4. TAMPILAN MODAL FILTER (DIPERBAIKI)
+   4. TAMPILAN MODAL FILTER
    ========================================= */
 .modal-filter-area {
     padding: 16px 20px;
@@ -774,4 +853,94 @@ body.no-scroll {
 .timeline-change .new {
     color: var(--brand); 
     font-weight: 600; 
+}
+
+/* =========================================
+   RESPONSIVE / MOBILE & TABLET FIXES
+   ========================================= */
+@media (max-width: 1024px) {
+    /* TABLET / IPAD Specifics */
+    
+    /* Toolbar: Layout lebih fleksibel */
+    .peserta-toolbar {
+        justify-content: space-between;
+    }
+    
+    /* Search box di iPad */
+    .search {
+        min-width: 200px;
+        flex: 1;
+    }
+    
+    /* Actions container */
+    .toolbar-actions {
+        width: auto; /* Reset width agar mengikuti konten */
+        flex-shrink: 0;
+    }
+    
+    .toolbar-actions .btn {
+        flex-shrink: 0; /* Agar tombol tidak gepeng */
+    }
+
+    /* Tabel Horizontal Scroll (Mencegah tombol aksi terpotong) */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        display: block;
+    }
+    
+    .table {
+        min-width: 900px; /* Paksa lebar tabel agar scroll muncul */
+    }
+    
+    .table th, .table td {
+        white-space: nowrap; /* Mencegah teks turun baris berantakan */
+    }
+}
+
+@media (max-width: 768px) {
+    /* MOBILE (HP) Specifics */
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .peserta-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search {
+        width: 100%;
+    }
+    
+    .toolbar-actions {
+        width: 100%;
+        justify-content: space-between; /* Tombol rata kiri-kanan */
+    }
+
+    /* Sembunyikan label text pada tombol utama di HP agar muat */
+    .btn-label-responsive {
+        display: none;
+    }
+    
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal__dialog {
+        width: 95%;
+        margin: 10px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .stats-cards {
+        grid-template-columns: 1fr;
+    }
 }

@@ -1,112 +1,102 @@
-<!doctype html>
-<html lang="id">
+<html xmlns:x="urn:schemas-microsoft-com:office:excel">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Absensi Peserta - {{ $acara->nama_acara }}</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ asset('css/template/export-absen.css') }}">
-
-  <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+        .title { font-weight: bold; font-size: 16px; text-align: center; vertical-align: middle; height: 30px; }
+        .subtitle { text-align: center; vertical-align: middle; height: 20px; }
+        th { background-color: #eeeeee; border: 1px solid #000000; text-align: center; vertical-align: middle; font-weight: bold; }
+        td { border: 1px solid #000000; vertical-align: middle; padding: 3px; }
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+    </style>
 </head>
 <body>
+    @php
+        // Hitung total kolom untuk colspan Header Judul
+        // 4 Kolom Utama (No, Nama, NIP, SKPD) + (Jumlah Tanggal * 3 Kolom Masuk/Istirahat/Pulang)
+        $cols = 4 + (count($dates) * 3);
+    @endphp
+    
+    <table>
+        <tr>
+            <td colspan="{{ $cols }}" class="title">REKAPITULASI ABSENSI PESERTA</td>
+        </tr>
+        <tr>
+            <td colspan="{{ $cols }}" class="subtitle">{{ $acara->nama_acara }}</td>
+        </tr>
+        <tr>
+            <td colspan="{{ $cols }}" class="subtitle">Lokasi: {{ $acara->lokasi }}</td>
+        </tr>
+        <tr></tr>
+    </table>
 
-  <main class="doc">
-
-    <!-- HEADER -->
-    <header class="doc-header">
-      <h1>ABSENSI PESERTA ACARA BKPSDM KARAWANG</h1>
-    </header>
-
-    <!-- META -->
-    <section class="doc-meta">
-      <table class="meta-table">
-        <tbody>
-          <tr>
-            <td class="meta-label">Tanggal</td>
-            <td class="meta-sep">:</td>
-            <td class="meta-value">{{ $dateText }}</td>
-          </tr>
-          <tr>
-            <td class="meta-label">Nama Acara</td>
-            <td class="meta-sep">:</td>
-            <td class="meta-value">{{ $acara->nama_acara }}</td>
-          </tr>
-          <tr>
-            <td class="meta-label">Materi</td>
-            <td class="meta-sep">:</td>
-            <td class="meta-value">{{ $acara->materi ?? '-' }}</td>
-          </tr>
-          <tr>
-            <td class="meta-label">Ruangan</td>
-            <td class="meta-sep">:</td>
-            <td class="meta-value">{{ $acara->lokasi ?? '-' }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- TABLE -->
-    <section class="doc-table">
-      <table class="data-table">
+    <table>
         <thead>
-          <tr>
-            <th style="width:40px;" class="text-center">No</th>
-            <th>Nama</th>
-            <th style="width:140px;" class="text-center">Unit Kerja</th>
-            <th style="width:120px;" class="text-center">Status Kehadiran</th>
-            <th style="width:150px;" class="text-center">Waktu Presensi</th>
-          </tr>
+            <tr>
+                <th rowspan="2" width="40">No</th>
+                <th rowspan="2" width="200">Nama Peserta</th>
+                <th rowspan="2" width="150">NIP</th>
+                <th rowspan="2" width="150">SKPD</th>
+                @foreach($dates as $dt)
+                    <th colspan="3" style="background-color: #d1d5db;">{{ \Carbon\Carbon::parse($dt)->translatedFormat('d M Y') }}</th>
+                @endforeach
+            </tr>
+            <tr>
+                @foreach($dates as $dt)
+                    <th width="80">Masuk</th>
+                    <th width="80">Istirahat</th>
+                    <th width="80">Pulang</th>
+                @endforeach
+            </tr>
         </thead>
-
         <tbody>
-          @foreach ($rows as $i => $r)
-          <tr>
-            <td class="text-center">{{ $i + 1 }}.</td>
-            <td>
-              <div class="cell-name">{{ $r->nama }}</div>
-              <div class="cell-nip">(NIP: {{ $r->nip }})</div>
-            </td>
-            <td class="text-center">{{ $r->skpd }}</td>
-            @php
-              $status = $r->status_kehadiran;
-              $statusText = $status === 'Hadir'
-                ? 'Hadir'
-                : (in_array($status, ['Tidak Hadir', '?', null, ''], true) ? 'Tidak Hadir' : 'Belum Hadir');
-              $isBad = $statusText !== 'Hadir';
-            @endphp
-            <td class="text-center {{ $isBad ? 'text-danger' : '' }}">{{ $statusText }}</td>
-            <td class="text-center">{{ $r->waktu_presensi ? \Carbon\Carbon::parse($r->waktu_presensi)->setTimezone(config('app.timezone') ?? 'Asia/Jakarta')->format('d/m/Y H:i') : '-' }}</td>
-          </tr>
-          @endforeach
+            @foreach($peserta as $index => $p)
+                <tr>
+                    <td class="text-center">{{ $index + 1 }}</td>
+                    <td>{{ $p->nama }}</td>
+                    <td class="text-left" style="mso-number-format:'\@';">{{ $p->nip }}</td>
+                    <td>{{ $p->skpd }}</td>
+
+                    @foreach($dates as $dateStr)
+                        @php
+                            // Ambil log presensi user ini di tanggal ini
+                            $logs = $presensiMap[$p->nip][$dateStr] ?? [];
+                            $logsCol = collect($logs);
+                            
+                            // Fungsi Closure untuk menentukan status & warna
+                            $getStatus = function($jenis) use ($logsCol, $dateStr, $today) {
+                                $hasLog = $logsCol->where('jenis_presensi', $jenis)->first();
+                                
+                                // Jika ada data log jam nya
+                                if ($hasLog) {
+                                    // Ambil Jam nya saja (H:i)
+                                    $jam = \Carbon\Carbon::parse($hasLog->waktu_presensi)->format('H:i');
+                                    // Warna Hijau
+                                    return [$jam, '#92d050', '#000000']; 
+                                }
+
+                                // Jika tanggal sudah lewat tapi tidak absen
+                                if ($dateStr < $today) {
+                                    // Warna Merah
+                                    return ['X', '#ff0000', '#ffffff']; 
+                                }
+                                
+                                return ['-', '#ffffff', '#000000']; 
+                            };
+
+                            list($tM, $bgM, $txM) = $getStatus('masuk');
+                            list($tI, $bgI, $txI) = $getStatus('istirahat');
+                            list($tP, $bgP, $txP) = $getStatus('pulang');
+                        @endphp
+
+                        {{-- Render Kolom --}}
+                        <td class="text-center" style="background-color: {{ $bgM }}; color: {{ $txM }};">{{ $tM }}</td>
+                        <td class="text-center" style="background-color: {{ $bgI }}; color: {{ $txI }};">{{ $tI }}</td>
+                        <td class="text-center" style="background-color: {{ $bgP }}; color: {{ $txP }};">{{ $tP }}</td>
+                    @endforeach
+                </tr>
+            @endforeach
         </tbody>
-      </table>
-    </section>
-
-    <!-- SIGNATURE -->
-    <section class="doc-sign right">
-      <div class="sign-box">
-        <div class="sign-line">
-          <span>Karawang, {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('d F Y') }}</span>
-        </div>
-        <div class="sign-line">
-          <span>Kepala Bidang</span>
-          <span class="dot-fill"></span>
-        </div>
-        <div class="sign-space"></div>
-        <div class="sign-line short">
-          <span class="solid-fill"></span>
-        </div>
-        <div class="sign-line">
-          <span>NIP.</span>
-          <span class="dot-fill"></span>
-        </div>
-      </div>
-    </section>
-
-</main>
-
-<script src="{{ asset('js/template/export-absen.js') }}"></script>
+    </table>
 </body>
 </html>

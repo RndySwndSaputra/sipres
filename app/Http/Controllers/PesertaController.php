@@ -380,19 +380,37 @@ class PesertaController extends Controller
         $peserta = $query->get();
 
         if ($peserta->isEmpty()) {
-             return '<script>alert("Tidak ada peserta untuk dicetak.");window.close();</script>';
+             return '<script>alert("Tidak ada peserta.");window.close();</script>';
         }
+
+        // TAMBAHAN: Memory Limit agar Hosting tidak Blank Putih
+        ini_set('memory_limit', '512M');
+        ini_set('max_execution_time', '300');
 
         foreach ($peserta as $p) {
             if($p->nip) {
                 $qrContent = $acara->id_acara . '#' . $p->nip;
-                $p->qr_image = base64_encode(QrCode::format('svg')->size(110)->generate($qrContent));
+                
+                // --- LOGIKA PINTAR (SOLUSI INTI) ---
+                // Cek: Apakah kita sedang di laptop (local)?
+                if (app()->environment('local')) {
+                    // DI LAPTOP: Pakai SVG (Agar tidak error "Install Imagick")
+                    $format = 'svg';
+                } else {
+                    // DI HOSTING: Pakai PNG (Agar PDF tidak silang merah)
+                    $format = 'png';
+                }
+                
+                // Generate QR sesuai format yang dipilih mesin
+                $p->qr_image = base64_encode(QrCode::format($format)->size(110)->generate($qrContent));
+                
+                // Kirim info format ke Blade supaya Blade tahu headernya apa
+                $p->qr_format = $format; 
             }
         }
 
         $pdf = Pdf::loadView('admin.peserta.pdf-idcard', compact('acara', 'peserta'));
         $pdf->setPaper('a4', 'portrait');
-
         return $pdf->download('ID-Card-'.$acara->nama_acara.'.pdf');
     }
 

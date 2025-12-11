@@ -79,6 +79,10 @@
   border: 1px solid transparent;
   transition: all 0.2s;
   text-decoration: none;
+  /* Tambahan agar tinggi konsisten */
+  height: 42px; 
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
 /* Primary Button (Hijau) */
@@ -109,6 +113,7 @@
 .btn-text {
   background: transparent;
   color: #64748b;
+  height: auto; /* Text button tidak perlu height fixed */
 }
 
 .btn-text:hover {
@@ -122,6 +127,7 @@
   font-size: 0.8rem;
   border-radius: 6px;
   min-height: 30px;
+  height: auto; /* Reset height untuk tombol kecil */
   line-height: 1;
 }
 
@@ -146,6 +152,9 @@
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  /* Tambahan: Pastikan container relative */
+  position: relative;
+  width: 100%;
 }
 
 .table {
@@ -163,6 +172,7 @@
   font-weight: 700;
   border-bottom: 1px solid #e2e8f0;
   letter-spacing: 0.05em;
+  white-space: nowrap; /* Header tidak turun baris */
 }
 
 .table td {
@@ -383,7 +393,7 @@
 }
 
 /* =========================================
-   TOAST NOTIFICATION (NEW)
+   TOAST NOTIFICATION
    ========================================= */
 .toast-container {
   position: fixed;
@@ -435,5 +445,64 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* =========================================
+   RESPONSIVE / MOBILE & TABLET FIXES
+   ========================================= */
+/* Tablet & iPad (Portrait/Landscape) */
+@media (max-width: 1024px) {
+  
+  /* 1. Fix Table Cutoff */
+  .table-container {
+    overflow-x: auto; /* Aktifkan scroll horizontal */
+    -webkit-overflow-scrolling: touch; /* Smooth scroll di iOS */
+    display: block; /* Pastikan block agar overflow jalan */
+  }
+
+  .table {
+    min-width: 900px; /* Paksa lebar tabel agar trigger scroll jika layar sempit */
+  }
+
+  .table th, .table td {
+    white-space: nowrap; /* Teks jangan turun baris */
+    padding: 12px 10px; /* Perkecil padding sedikit */
+  }
+
+  /* 2. Toolbar Optimization */
+  .toolbar {
+    gap: 16px;
+  }
+  
+  .search-box {
+    width: 100%; /* Search full width di tablet portrait */
+  }
+  
+  .actions {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto; /* Jika tombol kebanyakan, bisa discroll */
+    padding-bottom: 4px;
+  }
+  
+  .actions .btn {
+      flex-shrink: 0; /* Tombol jangan mengecil/gepeng */
+  }
+}
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-content {
+    width: 90%;
+    margin: 20px;
+  }
+  
+  .pagination {
+    justify-content: center;
   }
 }
