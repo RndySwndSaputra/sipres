@@ -30,9 +30,7 @@ class DashboardController extends Controller
         })->count();
         
         // 3. FILTER DASHBOARD (SPESIFIK TANGGAL TERPILIH)
-        
-        // A. Filter Acara: Acara yang AKTIF pada tanggal tersebut
-        // (Mulai sebelum/sama dengan hari ini DAN Selesai setelah/sama dengan hari ini)
+
         $queryAcara = Acara::where('waktu_mulai', '<=', $endOfDate)
                            ->where('waktu_selesai', '>=', $selectedDate);
         
