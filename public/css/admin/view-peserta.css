@@ -861,6 +861,10 @@ body.no-scroll {
 @media (max-width: 1024px) {
     /* TABLET / IPAD Specifics */
     
+    .dropdown-content {
+        right: auto; /* Matikan rata kanan */
+        left: 0;     /* Aktifkan rata kiri */
+    }
     /* Toolbar: Layout lebih fleksibel */
     .peserta-toolbar {
         justify-content: space-between;
@@ -900,6 +904,18 @@ body.no-scroll {
 
 @media (max-width: 768px) {
     /* MOBILE (HP) Specifics */
+
+    .dropdown-container {
+        position: relative !important; 
+    }
+
+    /* Agar dropdown muncul ke arah KANAN (tidak terpotong di kiri layar) */
+    .dropdown-content {
+        right: auto;  /* Matikan rata kanan */
+        left: 0;      /* Aktifkan rata kiri */
+        min-width: 200px;
+        z-index: 9999; /* Pastikan muncul di atas elemen lain */
+    }
 
     .page-header {
         flex-direction: column;

@@ -4,14 +4,24 @@
     <title>ID Card - {{ $acara->nama_acara }}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <style>
-        /* Kita gunakan file_get_contents agar CSS di-embed langsung ke PDF */
-        /* Pastikan file public/css/admin/pdf-idcard.css ADA */
         <?php
-            $cssPath = public_path('css/admin/pdf-idcard.css');
-            if (file_exists($cssPath)) {
-                echo file_get_contents($cssPath);
+            $cssFile = 'css/admin/pdf-idcard.css';
+            
+            // CARA 1: Cek di folder aktif (biasanya public_html di hosting) -> PALING AMPUH
+            $path = getcwd() . '/' . $cssFile;
+            
+            // CARA 2: Jika tidak ketemu, coba pakai cara bawaan Laravel (public_path)
+            if (!file_exists($path)) {
+                $path = public_path($cssFile);
+            }
+
+            // Tampilkan isinya jika file ditemukan
+            if (file_exists($path)) {
+                echo file_get_contents($path);
             } else {
-                echo "/* ERROR: File CSS tidak ditemukan di $cssPath */";
+                // Debugging: Munculkan pesan ini di PDF jika file tetap tidak ketemu
+                echo "/* ERROR: CSS tidak ditemukan di: $path */";
+                echo "body { font-family: sans-serif; }"; // Style darurat
             }
         ?>
     </style>
